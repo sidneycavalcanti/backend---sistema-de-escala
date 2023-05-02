@@ -1,0 +1,8 @@
+.nav-bar{
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  border: 5px solid rgba(246, 245, 245, 0.093);
+}
+
+.img-nav{
+  padding: 2px;
+}
