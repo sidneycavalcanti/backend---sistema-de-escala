@@ -50,7 +50,7 @@ function NavBar() {
               <div className="navbar-nav justify-content-end flex-grow-1 pe-3">
                 <li className="nav-item">
                   <Nav.Link
-                    className="nav-link active"
+                    className="nav-link"
                     aria-current="page"
                     href="/principal"
                   >

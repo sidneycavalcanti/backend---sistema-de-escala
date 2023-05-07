@@ -1,5 +1,6 @@
 import React from "react";
 import Routes from './routes';
+import "./App.css"
 import  'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle';
 import 'bootstrap/dist/css/font-awesome.min.css';

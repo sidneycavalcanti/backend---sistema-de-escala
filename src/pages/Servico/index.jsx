@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./servico.css";
 
 import { visualizarImpressao } from "./pdf";
 
@@ -18,7 +17,10 @@ function Servico() {
   const [registroAtual, setRegistroAtual] = useState({});
   const [isModalOpen1, setIsModalOpen1] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [buttonText, setButtonText] = useState("Abrir");
   const [open, setOpen] = useState({});
+  const [data, setData] = useState("");
+  const [militar, setMilitar] = useState("");
 
   useEffect(() => {
     axios
@@ -42,8 +44,42 @@ function Servico() {
       });
   }, []);
 
-  const handleClick = (index) => {
-    setOpen((prevState) => ({ ...prevState, [index]: !prevState[index] }));
+  const handleClick = async (index) => {
+    setOpen((prevState) => ({
+      ...prevState,
+      [index]: !prevState[index],
+    }));
+    // setButtonText(prevText => prevText === "Abrir" ? "Fechar" : "Abrir");
+  };
+
+  const handlePesquisa = async (event) => {
+    event.preventDefault();
+
+    const dataPesquisa = data;
+    const militarPesquisa = militar;
+
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/servicos?id=${dataPesquisa}&oficial_id=${militarPesquisa}&sgtdia_id=${militarPesquisa}&cbgd_id=${militarPesquisa}&rancho_id=${militarPesquisa}&moto_id=${militarPesquisa}&parmcav_id=${militarPesquisa}&auxrancho1_id=${militarPesquisa}&auxrancho2_id=${militarPesquisa}&auxrancho3_id=${militarPesquisa}&frente1_id=${militarPesquisa}&frente2_id=${militarPesquisa}&frente3_id=${militarPesquisa}&tras1_id=${militarPesquisa}&tras2_id=${militarPesquisa}&tras3_id=${militarPesquisa}&aloj1_id=${militarPesquisa}&aloj2_id=${militarPesquisa}&aloj3_id=${militarPesquisa}&garagem1_id=${militarPesquisa}&garagem2_id=${militarPesquisa}&garagem3_id=${militarPesquisa}&armeiro_id=${militarPesquisa}&pavsup1_id=${militarPesquisa}&pavsup2_id=${militarPesquisa}`
+      );
+      console.log(response.data);
+      setRegistros(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDataChange = async (event) => {
+    setData(event.target.value);
+  };
+
+  const handleMilitarChange = async (event) => {
+    setMilitar(event.target.value);
+  };
+
+  const handleLimpar = () => {
+    setData("");
+    setMilitar("");
   };
 
   const handleSubmit = async (event) => {
@@ -161,7 +197,7 @@ function Servico() {
     }
   };
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
     const confirmDelete = window.confirm(
       "Tem certeza que deseja excluir essa escala?"
     );
@@ -175,34 +211,57 @@ function Servico() {
   const buscarRegistro = async (id) => {
     const response = await axios.get(`http://localhost:5000/servicos/${id}`);
     setRegistroAtual(response.data);
-    console.log(response.data);
     setIsModalOpen2(true);
   };
 
-  const confirmaEdicao = async () => {
+  const confirmaEdicao = async (event) => {
+    event.preventDefault();
     // // Buscar os dados passando id
+
+    console.log("chegou aqui");
     const editRegistro = {
-      data: document.getElementById("date").value,
-      oficial_id: document.getElementById("oficial").value,
-      sgtdia_id: document.getElementById("sgt").value,
-      cbgd_id: document.getElementById("cb").value,
-      moto_id: document.getElementById("moto").value,
-      parmcav_id: document.getElementById("baia").value,
-      frente1_id: document.getElementById("frente1").value,
-      frente2_id: document.getElementById("frente2").value,
-      frente3_id: document.getElementById("frente3").value,
-      tras1_id: document.getElementById("tras1").value,
-      tras2_id: document.getElementById("tras2").value,
-      tras3_id: document.getElementById("tras3").value,
-      aloj1_id: document.getElementById("alojamento1").value,
-      aloj2_id: document.getElementById("alojamento2").value,
-      aloj3_id: document.getElementById("alojamento3").value,
-      garagem1_id: document.getElementById("garagem1").value,
-      garagem2_id: document.getElementById("garagem2").value,
-      garagem3_id: document.getElementById("garagem3").value,
+      data: event.target.date.value,
+
+      oficial_id: event.target.oficial.value,
+      sgtdia_id: event.target.sgt.value,
+      cbgd_id: event.target.cb.value,
+      moto_id: event.target.moto.value,
+      rancho_id: event.target.permrancho.value,
+      parmcav_id: event.target.baia.value,
+
+      auxrancho1_id: event.target.auxrancho1.value,
+      auxrancho2_id: event.target.auxrancho2.value,
+      auxrancho3_id: event.target.auxrancho3.value,
+
+      frente1_id: event.target.frente1.value,
+      frente2_id: event.target.frente2.value,
+      frente3_id: event.target.frente3.value,
+
+      tras1_id: event.target.tras1.value,
+      tras2_id: event.target.tras2.value,
+      tras3_id: event.target.tras3.value,
+
+      aloj1_id: event.target.alojamento1.value,
+      aloj2_id: event.target.alojamento2.value,
+      aloj3_id: event.target.alojamento3.value,
+
+      garagem1_id: event.target.garagem1.value,
+      garagem2_id: event.target.garagem2.value,
+      garagem3_id: event.target.garagem3.value,
+
+      pavsup1_id: event.target.pavsup1.value,
+      pavsup2_id: event.target.pavsup2.value,
+
+      armeiro_id: event.target.armeiro.value,
+
+      patrulha: event.target.patrulha.value,
+      instrucao: event.target.instrucao.value,
+      geraladm: event.target.geraladm.value,
+      jusdis: event.target.jusdis.value,
     };
+    console.log(editRegistro);
+
     try {
-      console.log(editRegistro);
       // Faz a requisição PUT enviando os dados a serem atualizados no corpo da requisição
       axios.put(
         `http://localhost:5000/servicos/${registroAtual.id}`,
@@ -221,10 +280,82 @@ function Servico() {
     setIsModalOpen2(false);
   }
 
-
   return (
     <>
       <NavBar />
+      <br></br>
+      <div className="tabela">
+        <div className="row justify-content-center  ">
+          <div className="col-md-6 text-center mb-4">
+            <h2 className="heading-section">Pesquisar Escala</h2>
+          </div>
+          <Form>
+            <Row>
+              <Col>
+                <Form.Group>
+                  <Form.Select
+                    value={data}
+                    // id="data"
+                    onChange={handleDataChange}
+                  >
+                    <option value="" selected>
+                      Selecione...
+                    </option>
+                    {registros.map((item) => (
+                      <option value={item.id} key={item.id}>
+                        {item.data}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group>
+                  <Form.Select
+                    value={militar}
+                    // id="data"
+                    onChange={handleMilitarChange}
+                  >
+                    <option value="" selected>
+                      Selecione...
+                    </option>
+                    {dadosMilitar.map((item) => (
+                      <option value={item.id} key={item.id}>
+                        {item.gradId.name} - {item.name}
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+
+              <Col className="justify-content-center row">
+                <div
+                  className="btn-group"
+                  role="group"
+                  aria-label="Basic example"
+                >
+                  <Button
+                    variant="success"
+                    // type="submit"
+                    onClick={handlePesquisa}
+                    // onKeyDown={handlePesquisaKeyDown}
+                  >
+                    Pesquisar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={handleLimpar}
+                    // onKeyDown={handleLimparKeyDown}
+                  >
+                    Limpar
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+            <Col></Col>
+          </Form>
+        </div>
+      </div>
       <br></br>
       <div className="tabela">
         <Button variant="primary" onClick={() => setIsModalOpen1(true)}>
@@ -295,13 +426,13 @@ function Servico() {
 
                           <td>
                             <Button
+                              id={`mostrar-${registro.id}`}
                               variant="info"
                               onClick={() => handleClick(registro.id)}
                               aria-controls="example-collapse-text"
                               aria-expanded={open}
                             >
-                              {" "}
-                              Abrir
+                              {buttonText}
                             </Button>
                           </td>
                           <td>
@@ -1674,7 +1805,7 @@ function Servico() {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="success" type="submit">
-                Cadastrar
+                Atualizar
               </Button>
               <Button variant="danger" onClick={handleModalClose}>
                 Fechar
@@ -1682,7 +1813,7 @@ function Servico() {
             </Modal.Footer>
           </Form>
         </Modal>
-      </div>  
+      </div>
     </>
   );
 }
