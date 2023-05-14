@@ -20,11 +20,12 @@ function Servico() {
   const [buttonText, setButtonText] = useState("Abrir");
   const [open, setOpen] = useState({});
   const [data, setData] = useState("");
-  const [militar, setMilitar] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/servicos", {})
+      .get("http://localhost:5000/servicos")
       .then((response) => {
         setRegistros(response.data);
       })
@@ -34,14 +35,15 @@ function Servico() {
   }, []);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/militares")
-      .then((response) => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/militarestotal?situacao=0");
         setDadosMilitar(response.data);
-      })
-      .catch((err) => {
-        console.error("Não foi possivel obter os dados do servidor:", err);
-      });
+      } catch (error) {
+        console.error("Não foi possível obter os dados do servidor:", error);
+      }
+    };
+    fetchData();
   }, []);
 
   const handleClick = async (index) => {
@@ -56,11 +58,12 @@ function Servico() {
     event.preventDefault();
 
     const dataPesquisa = data;
-    const militarPesquisa = militar;
+    
+
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/servicos?id=${dataPesquisa}&oficial_id=${militarPesquisa}&sgtdia_id=${militarPesquisa}&cbgd_id=${militarPesquisa}&rancho_id=${militarPesquisa}&moto_id=${militarPesquisa}&parmcav_id=${militarPesquisa}&auxrancho1_id=${militarPesquisa}&auxrancho2_id=${militarPesquisa}&auxrancho3_id=${militarPesquisa}&frente1_id=${militarPesquisa}&frente2_id=${militarPesquisa}&frente3_id=${militarPesquisa}&tras1_id=${militarPesquisa}&tras2_id=${militarPesquisa}&tras3_id=${militarPesquisa}&aloj1_id=${militarPesquisa}&aloj2_id=${militarPesquisa}&aloj3_id=${militarPesquisa}&garagem1_id=${militarPesquisa}&garagem2_id=${militarPesquisa}&garagem3_id=${militarPesquisa}&armeiro_id=${militarPesquisa}&pavsup1_id=${militarPesquisa}&pavsup2_id=${militarPesquisa}`
+        `http://localhost:5000/servicos?id=${dataPesquisa}`
       );
       console.log(response.data);
       setRegistros(response.data);
@@ -73,59 +76,13 @@ function Servico() {
     setData(event.target.value);
   };
 
-  const handleMilitarChange = async (event) => {
-    setMilitar(event.target.value);
-  };
-
   const handleLimpar = () => {
     setData("");
-    setMilitar("");
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const novoRegistro = {
-      //id: Date.now(),
-      data: event.target.date.value,
-
-      oficial_id: event.target.oficial.value,
-      sgtdia_id: event.target.sgt.value,
-      cbgd_id: event.target.cb.value,
-      moto_id: event.target.moto.value,
-      rancho_id: event.target.permrancho.value,
-      parmcav_id: event.target.baia.value,
-
-      auxrancho1_id: event.target.auxrancho1.value,
-      auxrancho2_id: event.target.auxrancho2.value,
-      auxrancho3_id: event.target.auxrancho3.value,
-
-      frente1_id: event.target.frente1.value,
-      frente2_id: event.target.frente2.value,
-      frente3_id: event.target.frente3.value,
-
-      tras1_id: event.target.tras1.value,
-      tras2_id: event.target.tras2.value,
-      tras3_id: event.target.tras3.value,
-
-      aloj1_id: event.target.alojamento1.value,
-      aloj2_id: event.target.alojamento2.value,
-      aloj3_id: event.target.alojamento3.value,
-
-      garagem1_id: event.target.garagem1.value,
-      garagem2_id: event.target.garagem2.value,
-      garagem3_id: event.target.garagem3.value,
-
-      pavsup1_id: event.target.pavsup1.value,
-      pavsup2_id: event.target.pavsup2.value,
-
-      armeiro_id: event.target.armeiro.value,
-
-      patrulha: event.target.patrulha.value,
-      instrucao: event.target.instrucao.value,
-      geraladm: event.target.geraladm.value,
-      jusdis: event.target.jusdis.value,
-    };
-
+    const novaData = event.target.date.value;
     const idsMilitares = [
       event.target.oficial.value,
       event.target.sgt.value,
@@ -158,40 +115,110 @@ function Servico() {
       event.target.pavsup2.value,
 
       event.target.armeiro.value,
-    ];
-    console.log(novoRegistro);
-    console.log(idsMilitares);
+    ];  
+    
+    const { data: registros } = await axios.get('http://localhost:5000/servicos');
+    const registroExistente = registros.find(registro => registro.data === novaData);
+    if (registroExistente) {
+      alert('Já existe um registro para esta data');
+      return;
+    }
 
     try {
-      await axios.post("http://localhost:5000/servicos", novoRegistro, {
-        headers: {
-          "Content-type": "application/json",
-        },
-      });
-
-      let i = 0;
-
-      while (i < idsMilitares.length) {
-        const endpoint = `http://localhost:5000/militares/${idsMilitares[i]}`;
-        const { data } = await axios.get(endpoint);
-        const atualizarMilitar = {
-          ultfunc: data.ultfunc + 1, // faz soma de dias tirado de serviço
-          dtultimosv: event.target.date.value,
-          qtddiaf: 0,
+        const novoRegistro = {
+          //id: Date.now(),
+          data: novaData,
+    
+          oficial_id: event.target.oficial.value,
+          sgtdia_id: event.target.sgt.value,
+          cbgd_id: event.target.cb.value,
+          moto_id: event.target.moto.value,
+          rancho_id: event.target.permrancho.value,
+          parmcav_id: event.target.baia.value,
+    
+          auxrancho1_id: event.target.auxrancho1.value,
+          auxrancho2_id: event.target.auxrancho2.value,
+          auxrancho3_id: event.target.auxrancho3.value,
+    
+          frente1_id: event.target.frente1.value,
+          frente2_id: event.target.frente2.value,
+          frente3_id: event.target.frente3.value,
+    
+          tras1_id: event.target.tras1.value,
+          tras2_id: event.target.tras2.value,
+          tras3_id: event.target.tras3.value,
+    
+          aloj1_id: event.target.alojamento1.value,
+          aloj2_id: event.target.alojamento2.value,
+          aloj3_id: event.target.alojamento3.value,
+    
+          garagem1_id: event.target.garagem1.value,
+          garagem2_id: event.target.garagem2.value,
+          garagem3_id: event.target.garagem3.value,
+    
+          pavsup1_id: event.target.pavsup1.value,
+          pavsup2_id: event.target.pavsup2.value,
+    
+          armeiro_id: event.target.armeiro.value,
+    
+          patrulha: event.target.patrulha.value,
+          instrucao: event.target.instrucao.value,
+          geraladm: event.target.geraladm.value,
+          jusdis: event.target.jusdis.value,
         };
-
-        await axios.put(endpoint, atualizarMilitar, {
-          headers: {
-            "Content-type": "application/json",
-          },
-        });
-        i++;
-      }
-
-      window.alert("Cadastro efetuado com sucesso!");
-      setRegistros([...registros, registroAtual]);
-      event.target.reset();
-      window.location.reload(true);
+    
+    
+          await axios.post("http://localhost:5000/servicos", novoRegistro, {
+            headers: {
+              "Content-type": "application/json",
+            },
+          });
+    
+          const { formatISO, parseISO, differenceInDays } = require('date-fns');
+    
+         
+          for (let i = 0; i < idsMilitares.length ; i++ ) {
+            const endpoint = `http://localhost:5000/militarestotal/${idsMilitares[i]}`;
+            const { data } = await axios.get(endpoint);
+            const { dtultimosv, qtddiaf } = data;
+          
+            const today = new Date();
+            const dateEntered = parseISO(event.target.date.value);
+          
+            // formatISO() converte a data para o formato "YYYY-MM-DD" que é o formato esperado pelo servidor
+            if (formatISO(dtultimosv) === formatISO(today)) {
+              await axios.put(endpoint, { qtddiaf: 0 }, {
+                headers: {
+                  "Content-type": "application/json",
+                },
+              });
+            } else if (parseISO(dtultimosv) < today && dateEntered >= today) {
+              // Se a data cadastrada for anterior à data atual e a data inserida for posterior à data atual,
+              // adicionamos a diferença de dias ao contador qtddiaf e atualizamos a data dtultimosv
+              const diff = differenceInDays(today, parseISO(dtultimosv));
+              await axios.put(endpoint, { qtddiaf: qtddiaf + diff, dtultimosv: today }, {
+                headers: {
+                  "Content-type": "application/json",
+                },
+              });
+            } else if (parseISO(dtultimosv) < today && dateEntered < today) {
+              // Se a data cadastrada for anterior à data atual e a data inserida também for anterior à data atual,
+              // mantemos o contador qtddiaf e atualizamos a data dtultimosv somente se elas forem iguais
+              if (formatISO(dateEntered) === formatISO(parseISO(dtultimosv))) {
+                await axios.put(endpoint, { qtddiaf: 0, dtultimosv: dateEntered }, {
+                  headers: {
+                    "Content-type": "application/json",
+                  },
+                });
+              }
+            }         
+           
+          }
+    
+          window.alert("Cadastro efetuado com sucesso!");
+          setRegistros([...registros, registroAtual]);
+          event.target.reset();
+          window.location.reload(true);
     } catch (error) {
       console.error("Erro ao criar registro:", error);
     }
@@ -275,10 +302,49 @@ function Servico() {
     }
   };
 
+ 
   function handleModalClose() {
     setIsModalOpen1(false);
     setIsModalOpen2(false);
   }
+
+  const atualizarContadorTodosMilitares = async () => {
+  
+    try {
+      let i = 0
+      while (i < dadosMilitar.length) {
+        console.log("entrou")
+        const endpoint = `http://localhost:5000/militares/${dadosMilitar[i].id}`;
+        console.log("entrou2")
+        console.log(endpoint)
+        const { data: militar } = await axios.get(endpoint);
+        console.log("entrou3")
+        const novoContador = militar.qtddiaf + 1;
+     
+        await axios.put(
+          endpoint,
+          { qtddiaf: novoContador },
+          {
+            headers: {
+              "Content-type": "application/json",
+            },
+          }
+        );
+        i++;
+        console.log("entrou3")
+      }
+           console.log("Contador atualizado com sucesso para todos os militares!");
+    } catch (error) {
+      console.error(
+        "Erro ao atualizar contador para todos os militares:",
+        error
+      );
+    }
+  };
+
+  setInterval(() => {
+    atualizarContadorTodosMilitares();
+  }, 24 * 60 * 60 * 1000); //24 horas vai somar mais 1
 
   return (
     <>
@@ -291,7 +357,7 @@ function Servico() {
           </div>
           <Form>
             <Row>
-              <Col>
+              <Col  xs={12} md={8}>
                 <Form.Group>
                   <Form.Select
                     value={data}
@@ -309,25 +375,6 @@ function Servico() {
                   </Form.Select>
                 </Form.Group>
               </Col>
-              <Col>
-                <Form.Group>
-                  <Form.Select
-                    value={militar}
-                    // id="data"
-                    onChange={handleMilitarChange}
-                  >
-                    <option value="" selected>
-                      Selecione...
-                    </option>
-                    {dadosMilitar.map((item) => (
-                      <option value={item.id} key={item.id}>
-                        {item.gradId.name} - {item.name}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-
               <Col className="justify-content-center row">
                 <div
                   className="btn-group"
@@ -534,8 +581,8 @@ function Servico() {
                                 {registro.pavsup1Id.gradId.name} -{" "}
                                 {registro.pavsup1Id.name}
                                 <br />
-                                {registro.pavsup1Id.gradId.name} -{" "}
-                                {registro.pavsup1Id.name}
+                                {registro.pavsup2Id.gradId.name} -{" "}
+                                {registro.pavsup2Id.name}
                               </td>
                               <td>{registro.patrulha}</td>
                               <td>{registro.instrucao}</td>
@@ -587,7 +634,7 @@ function Servico() {
                     className="mb-5"
                     controlId="exampleForm.ControlInput1"
                   >
-                    <Form.Label>Oficial de dia:</Form.Label>
+                    <Form.Label>Oficial de dia/Sobre aviso:</Form.Label>
                     <Form.Select
                       className="inputMainPage"
                       type="number"

@@ -1,6 +1,8 @@
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 
+
+
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 export async function visualizarImpressao(id) {
@@ -21,6 +23,7 @@ export async function visualizarImpressao(id) {
     month: "long",
     year: "numeric",
   });
+  
 
   //converter imagem em binario
   const pdfDefinition = {
@@ -40,13 +43,14 @@ export async function visualizarImpressao(id) {
       },
       { text: "", margin: [0, 5] },
       {
-        text: "ADITAMENTO AO BOLETIM INTERNO Nr " + " " + registro.id,
+        text: "ADITAMENTO AO BOLETIM INTERNO Nr " + " " + registro.bi,
         alignment: "center",
         bold: true,
       },
       { text: "", margin: [0, 5] },
       {
-        text: "Para conhecimento deste Campo de Instrução e devida execução, publico o seguinte:",
+        text:
+          "Para conhecimento deste Campo de Instrução e devida execução, publico o seguinte:",
       },
       { text: "", margin: [0, 5] },
       {
@@ -64,12 +68,12 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
+          widths: [200, 300],
 
           body: [
             [
               "1) Oficial de Dia/Sobreaviso",
-              registro.oficialId.grad + " " + registro.oficialId.name,
+              registro.oficialId.gradId.name + " " + registro.oficialId.name,
             ],
           ],
         },
@@ -77,12 +81,12 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
+          widths: [200, 300],
 
           body: [
             [
               "2) Sgt-de-Dia",
-              registro.sgtdiaId.grad + " " + registro.sgtdiaId.name,
+              registro.sgtdiaId.gradId.name + " " + registro.sgtdiaId.name,
             ],
           ],
         },
@@ -90,12 +94,12 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
+          widths: [200, 300],
 
           body: [
             [
               "3) Cabo da Guarda",
-              registro.cbgdId.grad + " " + registro.cbgdId.name,
+              registro.cbgdId.gradId.name + " " + registro.cbgdId.name,
             ],
           ],
         },
@@ -103,12 +107,12 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
+          widths: [200, 300],
 
           body: [
             [
               "4) Motorista de Dia",
-              registro.motoId.grad + " " + registro.motoId.name,
+              registro.motoId.gradId.name + " " + registro.motoId.name,
             ],
           ],
         },
@@ -116,12 +120,12 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
+          widths: [200, 300],
 
           body: [
             [
               "5) Perm ao Rancho",
-              registro.parmcavId.grad + " " + registro.parmcavId.name,
+              registro.ranchoId.gradId.name + " " + registro.ranchoId.name,
             ],
           ],
         },
@@ -129,12 +133,21 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
-
+          widths: [200, 300],
           body: [
             [
-              "6) Aux Perm ao Rancho",
-              registro.parmcavId.grad + " " + registro.parmcavId.name,
+              "6)  Aux. ao Perm ao Rancho",
+              registro.auxrancho1Id.gradId.name +
+                " " +
+                registro.auxrancho1Id.name +
+                " " +
+                registro.auxrancho2Id.gradId.name +
+                " " +
+                registro.auxrancho2Id.name +
+                " " +
+                registro.auxrancho3Id.gradId.name +
+                " " +
+                registro.auxrancho3Id.name,
             ],
           ],
         },
@@ -142,12 +155,12 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
+          widths: [200, 300],
 
           body: [
             [
               "7) Perm à Cavalariça",
-              registro.parmcavId.grad + " " + registro.parmcavId.name,
+              registro.parmcavId.gradId.name + " " + registro.parmcavId.name,
             ],
           ],
         },
@@ -156,21 +169,21 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
+          widths: [200, 300],
           body: [
             [
               "8) Gd ao Pav Principal",
-              registro.frente1Id.grad +
-              " " +
-              registro.frente1Id.name +
-              " " +
-              registro.frente2Id.grad +
-              " " +
-              registro.frente2Id.name +
-              " " +
-              registro.frente3Id.grad +
-              " " +
-              registro.frente3Id.name,
+              registro.frente1Id.gradId.name +
+                " " +
+                registro.frente1Id.name +
+                " " +
+                registro.frente2Id.gradId.name +
+                " " +
+                registro.frente2Id.name +
+                " " +
+                registro.frente3Id.gradId.name +
+                " " +
+                registro.frente3Id.name,
             ],
           ],
         },
@@ -178,21 +191,21 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
+          widths: [200, 300],
           body: [
             [
               "9) Reforço ao Pav Principal",
-              registro.tras1Id.grad +
-              " " +
-              registro.tras1Id.name +
-              " " +
-              registro.tras2Id.grad +
-              " " +
-              registro.tras2Id.name +
-              " " +
-              registro.frente3Id.grad +
-              " " +
-              registro.tras3Id.name,
+              registro.tras1Id.gradId.name +
+                " " +
+                registro.tras1Id.name +
+                " " +
+                registro.tras2Id.gradId.name +
+                " " +
+                registro.tras2Id.name +
+                " " +
+                registro.tras3Id.gradId.name +
+                " " +
+                registro.tras3Id.name,
             ],
           ],
         },
@@ -200,21 +213,21 @@ export async function visualizarImpressao(id) {
       {
         layout: "lightHorizontalLines",
         table: {
-          widths: [150, 300],
+          widths: [200, 300],
           body: [
             [
               "10) Plantão ao Posto de Combustível",
-              registro.garagem1Id.grad +
-              " " +
-              registro.garagem1Id.name +
-              " " +
-              registro.garagem2Id.grad +
-              " " +
-              registro.garagem2Id.name +
-              " " +
-              registro.garagem3Id.grad +
-              " " +
-              registro.garagem3Id.name,
+              registro.garagem1Id.gradId.name +
+                " " +
+                registro.garagem1Id.name +
+                " " +
+                registro.garagem2Id.gradId.name +
+                " " +
+                registro.garagem2Id.name +
+                " " +
+                registro.garagem3Id.gradId.name +
+                " " +
+                registro.garagem3Id.name,
             ],
           ],
         },
@@ -226,17 +239,17 @@ export async function visualizarImpressao(id) {
           body: [
             [
               "11) Plantão ao Alojamento",
-              registro.aloj1Id.grad +
-              " " +
-              registro.aloj1Id.name +
-              " " +
-              registro.aloj2Id.grad +
-              " " +
-              registro.aloj2Id.name +
-              " " +
-              registro.aloj3Id.grad +
-              " " +
-              registro.aloj3Id.name,
+              registro.aloj1Id.gradId.name +
+                " " +
+                registro.aloj1Id.name +
+                " " +
+                registro.aloj2Id.gradId.name +
+                " " +
+                registro.aloj2Id.name +
+                " " +
+                registro.aloj3Id.gradId.name +
+                " " +
+                registro.aloj3Id.name,
             ],
           ],
         },
@@ -248,23 +261,59 @@ export async function visualizarImpressao(id) {
           body: [
             [
               "12) Manutenção ao Pav Superior",
-              registro.garagem1Id.grad +
-              " " +
-              registro.garagem1Id.name +
-              " " +
-              registro.garagem2Id.grad +
-              " " +
-              registro.garagem2Id.name,
+              registro.pavsup1Id.gradId.name +
+                " " +
+                registro.pavsup1Id.name +
+                " " +
+                registro.pavsup1Id.gradId.name +
+                " " +
+                registro.pavsup1Id.name,
             ],
           ],
         },
       },
       {
-        text: "12) Patrulha ao CIMNC" +
-          " " +
-          "01(um) sgt, 01 (um) Cb e 03 (três) Sd A cargo do" +
-          " " +
-          "(23 a 25 Abril 23)",
+        layout: "lightHorizontalLines",
+        table: {
+          widths: [200, 300],
+          body: [["13) Patrulha ao CIMNC", registro.patrulha]],
+        },
+      },
+      { text: "", margin: [0, 5] },
+      {
+        text: "2ª PARTE - INSTRUÇÃO",
+        decoration: "underline",
+        alignment: "center",
+        bold: true,
+      },
+      { text: "", margin: [0, 5] },
+      {
+        text: registro.instrucao,
+        alignment: "center",
+      },
+      { text: "", margin: [0, 5] },
+      {
+        text: "3ª PARTE - ASSUNTO GERAIS E ADMINISTRATIVOS",
+        decoration: "underline",
+        alignment: "center",
+        bold: true,
+      },
+      { text: "", margin: [0, 5] },
+      {
+        text: registro.geraladm,
+        alignment: "center",
+      },
+      { text: "", margin: [0, 5] },
+      {
+        text: "4ª PARTE - JUSTIÇA E DISCIPLINA",
+        decoration: "underline",
+        alignment: "center",
+        bold: true,
+      },
+      { text: "", margin: [0, 5] },
+      {
+        text: registro.jusdis,
+        alignment: "center",
       },
     ],
   };
