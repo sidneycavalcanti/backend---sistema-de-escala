@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-
 import { visualizarImpressao } from "./pdf";
 
 import Form from "react-bootstrap/Form";
