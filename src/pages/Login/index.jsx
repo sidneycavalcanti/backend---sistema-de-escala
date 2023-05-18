@@ -8,7 +8,7 @@ function Login() {
   const [idt, setIdt] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
     const dados = {
       idt: event.target.idt.value,
@@ -22,7 +22,14 @@ function Login() {
         },
       });
 
-      console.log(response)
+      const { token } = response.data;
+
+      console.log({ token });
+
+      localStorage.setItem('token', token);
+
+
+
       if (response.data.success) {
         // Confirmação do backend recebida com sucesso, prossegue com a execução
         console.log("Login realizado com sucesso!");
@@ -42,20 +49,20 @@ function Login() {
       <div className="container-login">
         <div className="text-center">
           <main className="form-signin w-100 m-auto">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleLogin}>
               <img className="mb-4" src={Logo} alt="" width="72" height="85" />
               <h1 className="h3 mb-3 fw-normal">SisEscala</h1>
 
               <div className="form-floating">
                 <input
-                  type="number"
+                  type="text"
                   value={idt}
                   className="form-control"
                   id="idt"
                   placeholder="identidade militar"
                   onChange={(event) => setIdt(event.target.value)}          
                 />
-                <label htmlFor="floatingInput">Identidade Militar</label>
+                <label htmlFor="floatingInput">Nome</label>
               </div>
               <div className="form-floating">
                 <input
