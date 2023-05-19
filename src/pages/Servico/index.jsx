@@ -23,8 +23,13 @@ function Servico() {
   const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
+    const token = localStorage.getItem("token")
     axios
-      .get("http://localhost:5000/servicos")
+      .get("http://localhost:5000/servicos", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       .then((response) => {
         setRegistros(response.data);
       })
