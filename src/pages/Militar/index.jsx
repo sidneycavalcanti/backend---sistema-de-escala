@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { Button, Pagination } from "react-bootstrap";
-
 import NavBar from "../MainPage/NavBar";
 import axios from "axios";
 
@@ -20,6 +18,8 @@ const Militar = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
+  const token = localStorage.getItem("token");
+
   //trazer todos os militares e colocar no setRegistro
   useEffect(() => {
     fetchRegistros();
@@ -27,7 +27,11 @@ const Militar = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/grads")
+      .get("http://localhost:5000/grads", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((response) => {
         setDadosGrad(response.data);
       })
@@ -39,13 +43,24 @@ const Militar = () => {
   //trazer todos as graduações e colocar no setDadosGrad
   const fetchRegistros = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/militares?page=${currentPage}&name=${name}&grad=${grad}`);
+      const response = await axios.get(
+        `http://localhost:5000/militares?page=${currentPage}&name=${name}&grad=${grad}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setRegistros(response.data.data);
       setTotalPages(response.data.totalPages);
     } catch (err) {
       if (err.response && err.response.status === 404) {
         axios
-          .get(`http://localhost:5000/militares?page=${totalPages}`)
+          .get(`http://localhost:5000/militares?page=${totalPages}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
           .then((response) => {
             setRegistros(response.data.data);
             setCurrentPage(totalPages);
@@ -76,24 +91,34 @@ const Militar = () => {
     const gradPesquisa = grad;
     try {
       const response = await axios.get(
-        `http://localhost:5000/militares?name=${nomePesquisa}&grad=${gradPesquisa}&page=${currentPage}`
+        `http://localhost:5000/militares?name=${nomePesquisa}&grad=${gradPesquisa}&page=${currentPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setRegistros(response.data.data);
       setTotalPages(response.data.totalPages);
-    } catch (err) {  if (err.response && err.response.status === 404) {
-      axios
-        .get(`http://localhost:5000/militares?page=${totalPages}`)
-        .then((response) => {
-          setRegistros(response.data.data);
-          setCurrentPage(totalPages);
-        })
-        .catch((err) => {
-          console.error("Não foi possivel obter os dados do servidor:", err);
-        });
-    } else {
-      console.error("Não foi possivel obter os dados do servidor:", err);
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        axios
+          .get(`http://localhost:5000/militares?page=${totalPages}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((response) => {
+            setRegistros(response.data.data);
+            setCurrentPage(totalPages);
+          })
+          .catch((err) => {
+            console.error("Não foi possivel obter os dados do servidor:", err);
+          });
+      } else {
+        console.error("Não foi possivel obter os dados do servidor:", err);
+      }
     }
-  }
   };
 
   const handleLimpar = () => {
@@ -119,7 +144,7 @@ const Militar = () => {
       handleLimparPesquisa();
     }
   };
-  
+
   //Cadastrar Militar no banco de dados
   const handleSubmit = async (event) => {
     const novoRegistro = {
@@ -137,6 +162,7 @@ const Militar = () => {
       await axios.post("http://localhost:5000/militares", novoRegistro, {
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
       setRegistros([...registros, novoRegistro]);
@@ -154,18 +180,28 @@ const Militar = () => {
       "Tem certeza que deseja excluir este Militar?"
     );
     if (confirmDelete) {
-      axios.delete(`http://localhost:5000/militares/${id}`).then(() => {
-        const novosRegistros = registros.filter(
-          (registro) => registro.id !== id
-        );
-        setRegistros(novosRegistros);
-      });
+      axios
+        .delete(`http://localhost:5000/militares/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(() => {
+          const novosRegistros = registros.filter(
+            (registro) => registro.id !== id
+          );
+          setRegistros(novosRegistros);
+        });
     }
     // window.location.reload(true);
   };
 
   const atualizarSituacao = async (id) => {
-    const militar = await axios.get(`http://localhost:5000/militares/${id}`);
+    const militar = await axios.get(`http://localhost:5000/militares/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     const botao = document.getElementById(`situacao-${id}`);
     let novaSituacao = false;
     if (militar.data.situacao === false) {
@@ -183,15 +219,20 @@ const Militar = () => {
     const edite = {
       situacao: novaSituacao,
     };
-    await axios.put(
-      `http://localhost:5000/militares/${id}`,
-      edite
-    );
+    await axios.put(`http://localhost:5000/militares/${id}`, edite, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     // window.location.reload(true);
   };
 
   const buscarRegistro = async (id) => {
-    const response = await axios.get(`http://localhost:5000/militares/${id}`);
+    const response = await axios.get(`http://localhost:5000/militares/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     setRegistroAtual(response.data);
     setIsModalOpen2(true);
   };
@@ -206,14 +247,18 @@ const Militar = () => {
       dtultimosv: event.target.dtultimosv.value,
       qtddiaf: event.target.qtddiaf.value,
     };
-    console.log(editRegistro)
     try {
       // Faz a requisição PUT enviando os dados a serem atualizados no corpo da requisição
-      axios.put(
+      await axios.put(
         `http://localhost:5000/militares/${registroAtual.id}`,
-        editRegistro
+        editRegistro,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      setRegistroAtual({...registroAtual, editRegistro});
+      setRegistroAtual({ ...registroAtual, editRegistro });
       window.alert("atualização efetuado com sucesso!");
     } catch (error) {
       window.alert(error);
@@ -226,7 +271,7 @@ const Militar = () => {
     setIsModalOpen2(false);
     // window.location.reload(true);
   };
-  
+
   return (
     <>
       <NavBar />
@@ -327,50 +372,50 @@ const Militar = () => {
                     <tbody>
                       {registros ? (
                         registros.map((registro) => (
-                        <tr key={registro.id}>
-                          <td>{registro.num}</td>
-                          <td>{registro.gradId.name}</td>
-                          <td>{registro.name}</td>
-                          <td>{registro.qtdsv}</td>
-                          <td>{registro.dtultimosv}</td>
-                          <td>{registro.qtddiaf}</td>
-                          <td>
-                            <div
-                              className="btn-group"
-                              role="group"
-                              aria-label="Basic example"
-                            >
-                              <Button
-                                id={`situacao-${registro.id}`}
-                                variant={
-                                  registro.situacao ? "danger" : "success"
-                                }
-                                onClick={() => atualizarSituacao(registro.id)}
+                          <tr key={registro.id}>
+                            <td>{registro.num}</td>
+                            <td>{registro.gradId.name}</td>
+                            <td>{registro.name}</td>
+                            <td>{registro.qtdsv}</td>
+                            <td>{registro.dtultimosv}</td>
+                            <td>{registro.qtddiaf}</td>
+                            <td>
+                              <div
+                                className="btn-group"
+                                role="group"
+                                aria-label="Basic example"
                               >
-                                {registro.situacao ? "Inativo" : "Ativo"}
-                              </Button>
-                              <Button
-                                variant="primary"
-                                onClick={() => buscarRegistro(registro.id)}
-                              >
-                                Editar
-                              </Button>
-                              <br></br>
-                              <Button
-                                variant="danger"
-                                onClick={() => handleDelete(registro.id)}
-                              >
-                                Excluir
-                              </Button>
-                            </div>
-                          </td>
+                                <Button
+                                  id={`situacao-${registro.id}`}
+                                  variant={
+                                    registro.situacao ? "danger" : "success"
+                                  }
+                                  onClick={() => atualizarSituacao(registro.id)}
+                                >
+                                  {registro.situacao ? "Inativo" : "Ativo"}
+                                </Button>
+                                <Button
+                                  variant="primary"
+                                  onClick={() => buscarRegistro(registro.id)}
+                                >
+                                  Editar
+                                </Button>
+                                <br></br>
+                                <Button
+                                  variant="danger"
+                                  onClick={() => handleDelete(registro.id)}
+                                >
+                                  Excluir
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="7">Nenhum registro encontrado.</td>
                         </tr>
-                      ))
-                    ) :(
-                      <tr>
-                      <td colSpan="7">Nenhum registro encontrado.</td>
-                    </tr>
-                    )}
+                      )}
                     </tbody>
                   </>
                 </table>
@@ -642,35 +687,35 @@ const Militar = () => {
         </div>
       </div>
       <br></br>
-     
-        <Pagination size="lg" className="justify-content-center">
-          <Pagination.First
-            onClick={() => handlePageChange(1)}
-            disabled={currentPage === 1}
-          />
-          <Pagination.Prev
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          />
-          {[...Array(totalPages).keys()].map((page) => (
-            <Pagination.Item
-              key={page + 1}
-              active={currentPage === page + 1}
-              onClick={() => handlePageChange(page + 1)}
-            >
-              {page + 1}
-            </Pagination.Item>
-          ))}
-          <Pagination.Next
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          />
-          <Pagination.Last
-            onClick={() => handlePageChange(totalPages)}
-            disabled={currentPage === totalPages}
-          />
-        </Pagination>
-        <h3 className="text-center">Pagina</h3>
+
+      <Pagination size="lg" className="justify-content-center">
+        <Pagination.First
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+        />
+        <Pagination.Prev
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        />
+        {[...Array(totalPages).keys()].map((page) => (
+          <Pagination.Item
+            key={page + 1}
+            active={currentPage === page + 1}
+            onClick={() => handlePageChange(page + 1)}
+          >
+            {page + 1}
+          </Pagination.Item>
+        ))}
+        <Pagination.Next
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        />
+        <Pagination.Last
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        />
+      </Pagination>
+      <h3 className="text-center">Pagina</h3>
     </>
   );
 };

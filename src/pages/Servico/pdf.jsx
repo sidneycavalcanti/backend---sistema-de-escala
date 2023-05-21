@@ -1,13 +1,17 @@
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 
-
+const token = localStorage.getItem("token")
 
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 export async function visualizarImpressao(id) {
   const url = `http://localhost:5000/servicos/${id}`;
-  const response = await fetch(url);
+  const response = await fetch(url,{
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
   const registro = await response.json();
   const timeElapsed = Date.now();
   const today = new Date(timeElapsed);
@@ -313,6 +317,22 @@ export async function visualizarImpressao(id) {
       { text: "", margin: [0, 5] },
       {
         text: registro.jusdis,
+        alignment: "center",
+      },
+
+      { text: "", margin: [0, 15] },
+      {
+        text: "FLAUBERT MARQUES SANTIAGO – TC",
+        bold: true,
+        alignment: "center",
+      },
+      {
+        text: "Subdiretor do Campo de Instrução Marechal Newton Cavalcanti",  
+        alignment: "center",
+      },
+      {
+        text: ' "200 ANOS DO TENENTE ANTÔNIO JOÃO: HERÓI DA EPOPEIA DE DURADOS" ',
+        bold: true,
         alignment: "center",
       },
     ],

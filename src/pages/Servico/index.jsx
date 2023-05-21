@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { visualizarImpressao } from "./pdf";
-
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import { Button, Collapse } from "react-bootstrap";
+import { Button, Collapse, Pagination } from "react-bootstrap";
 
 import NavBar from "../MainPage/NavBar";
 import axios from "axios";
@@ -16,32 +15,31 @@ function Servico() {
   const [registroAtual, setRegistroAtual] = useState({});
   const [isModalOpen1, setIsModalOpen1] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
-  const [buttonText, setButtonText] = useState("Abrir");
+  const [buttonText] = useState("Abrir");
   const [open, setOpen] = useState({});
   const [data, setData] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [minDate, setMinDate] = useState("");
+
+  const token = localStorage.getItem("token");
+  const currentDate = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    axios
-      .get("http://localhost:5000/servicos", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      .then((response) => {
-        setRegistros(response.data);
-      })
-      .catch((err) => {
-        console.error("Não foi possivel obter os dados do servidor:", err);
-      });
-  }, []);
+    fetchRegistro();
+  }, [currentPage]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/militarestotal?situacao=0");
+        const response = await axios.get(
+          "http://localhost:5000/militarestotal?situacao=0",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setDadosMilitar(response.data);
       } catch (error) {
         console.error("Não foi possível obter os dados do servidor:", error);
@@ -49,6 +47,51 @@ function Servico() {
     };
     fetchData();
   }, []);
+
+  if (!minDate) {
+    setMinDate(currentDate);
+  }
+
+  const fetchRegistro = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/servicos?page=${currentPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setRegistros(response.data.data);
+
+      setTotalPages(response.data.totalPages);
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        axios
+          .get(`http://localhost:5000/servicos?page=${totalPages}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((response) => {
+            setRegistros(response.data.data);
+            setCurrentPage(totalPages);
+          })
+        
+          .catch((err) => {
+            console.error("Não foi possivel obter os dados do servidor:", err);
+          });
+      } else {
+        console.error("Não foi possivel obter os dados do servidor:", err);
+      }
+    }
+   
+  };
+  console.log(registros)
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   const handleClick = async (index) => {
     setOpen((prevState) => ({
@@ -62,15 +105,17 @@ function Servico() {
     event.preventDefault();
 
     const dataPesquisa = data;
-    
-
 
     try {
       const response = await axios.get(
-        `http://localhost:5000/servicos?id=${dataPesquisa}`
+        `http://localhost:5000/servicos?id=${dataPesquisa}&page=${currentPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
-      console.log(response.data);
-      setRegistros(response.data);
+      setRegistros(response.data.data);
     } catch (error) {
       console.error(error);
     }
@@ -86,6 +131,7 @@ function Servico() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     const novaData = event.target.date.value;
     const idsMilitares = [
       event.target.oficial.value,
@@ -119,110 +165,141 @@ function Servico() {
       event.target.pavsup2.value,
 
       event.target.armeiro.value,
-    ];  
-    
-    const { data: registros } = await axios.get('http://localhost:5000/servicos');
-    const registroExistente = registros.find(registro => registro.data === novaData);
+    ];
+
+    const response = await axios.get(
+      "http://localhost:5000/servicos",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const registros = response.data.data;
+
+    const registroExistente = registros.find(
+      (registro) => registro.data === novaData
+    );
+
     if (registroExistente) {
-      alert('Já existe um registro para esta data');
+      const dataCadastrada = registroExistente.data;
+      alert(`Já existe um registro para esta data (${dataCadastrada})`);
       return;
     }
 
     try {
-        const novoRegistro = {
-          //id: Date.now(),
-          data: novaData,
-    
-          oficial_id: event.target.oficial.value,
-          sgtdia_id: event.target.sgt.value,
-          cbgd_id: event.target.cb.value,
-          moto_id: event.target.moto.value,
-          rancho_id: event.target.permrancho.value,
-          parmcav_id: event.target.baia.value,
-    
-          auxrancho1_id: event.target.auxrancho1.value,
-          auxrancho2_id: event.target.auxrancho2.value,
-          auxrancho3_id: event.target.auxrancho3.value,
-    
-          frente1_id: event.target.frente1.value,
-          frente2_id: event.target.frente2.value,
-          frente3_id: event.target.frente3.value,
-    
-          tras1_id: event.target.tras1.value,
-          tras2_id: event.target.tras2.value,
-          tras3_id: event.target.tras3.value,
-    
-          aloj1_id: event.target.alojamento1.value,
-          aloj2_id: event.target.alojamento2.value,
-          aloj3_id: event.target.alojamento3.value,
-    
-          garagem1_id: event.target.garagem1.value,
-          garagem2_id: event.target.garagem2.value,
-          garagem3_id: event.target.garagem3.value,
-    
-          pavsup1_id: event.target.pavsup1.value,
-          pavsup2_id: event.target.pavsup2.value,
-    
-          armeiro_id: event.target.armeiro.value,
-    
-          patrulha: event.target.patrulha.value,
-          instrucao: event.target.instrucao.value,
-          geraladm: event.target.geraladm.value,
-          jusdis: event.target.jusdis.value,
-        };
-    
-    
-          await axios.post("http://localhost:5000/servicos", novoRegistro, {
-            headers: {
-              "Content-type": "application/json",
-            },
-          });
-    
-          const { formatISO, parseISO, differenceInDays } = require('date-fns');
-    
-         
-          for (let i = 0; i < idsMilitares.length ; i++ ) {
-            const endpoint = `http://localhost:5000/militarestotal/${idsMilitares[i]}`;
-            const { data } = await axios.get(endpoint);
-            const { dtultimosv, qtddiaf } = data;
-          
-            const today = new Date();
-            const dateEntered = parseISO(event.target.date.value);
-          
-            // formatISO() converte a data para o formato "YYYY-MM-DD" que é o formato esperado pelo servidor
-            if (formatISO(dtultimosv) === formatISO(today)) {
-              await axios.put(endpoint, { qtddiaf: 0 }, {
+      const novoRegistro = {
+        //id: Date.now(),
+        data: novaData,
+
+        oficial_id: event.target.oficial.value,
+        sgtdia_id: event.target.sgt.value,
+        cbgd_id: event.target.cb.value,
+        moto_id: event.target.moto.value,
+        rancho_id: event.target.permrancho.value,
+        parmcav_id: event.target.baia.value,
+
+        auxrancho1_id: event.target.auxrancho1.value,
+        auxrancho2_id: event.target.auxrancho2.value,
+        auxrancho3_id: event.target.auxrancho3.value,
+
+        frente1_id: event.target.frente1.value,
+        frente2_id: event.target.frente2.value,
+        frente3_id: event.target.frente3.value,
+
+        tras1_id: event.target.tras1.value,
+        tras2_id: event.target.tras2.value,
+        tras3_id: event.target.tras3.value,
+
+        aloj1_id: event.target.alojamento1.value,
+        aloj2_id: event.target.alojamento2.value,
+        aloj3_id: event.target.alojamento3.value,
+
+        garagem1_id: event.target.garagem1.value,
+        garagem2_id: event.target.garagem2.value,
+        garagem3_id: event.target.garagem3.value,
+
+        pavsup1_id: event.target.pavsup1.value,
+        pavsup2_id: event.target.pavsup2.value,
+
+        armeiro_id: event.target.armeiro.value,
+
+        patrulha: event.target.patrulha.value,
+        instrucao: event.target.instrucao.value,
+        geraladm: event.target.geraladm.value,
+        jusdis: event.target.jusdis.value,
+      };
+
+      await axios.post("http://localhost:5000/servicos", novoRegistro, {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const { formatISO, parseISO, differenceInDays } = require("date-fns");
+
+      for (let i = 0; i < idsMilitares.length; i++) {
+        const endpoint = `http://localhost:5000/militarestotal/${idsMilitares[i]}`;
+        const { data } = await axios.get(endpoint,{
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const { dtultimosv, qtddiaf } = data;
+
+        const today = new Date();
+        const dateEntered = parseISO(event.target.date.value);
+
+        // formatISO() converte a data para o formato "YYYY-MM-DD" que é o formato esperado pelo servidor
+        if (formatISO(dtultimosv) === formatISO(today)) {
+          await axios.put(
+            endpoint,
+            { qtddiaf: 0 },
+            {
+              headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        } else if (parseISO(dtultimosv) < today && dateEntered >= today) {
+          // Se a data cadastrada for anterior à data atual e a data inserida for posterior à data atual,
+          // adicionamos a diferença de dias ao contador qtddiaf e atualizamos a data dtultimosv
+          const diff = differenceInDays(today, parseISO(dtultimosv));
+          await axios.put(
+            endpoint,
+            { qtddiaf: qtddiaf + diff, dtultimosv: today },
+            {
+              headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        } else if (parseISO(dtultimosv) < today && dateEntered < today) {
+          // Se a data cadastrada for anterior à data atual e a data inserida também for anterior à data atual,
+          // mantemos o contador qtddiaf e atualizamos a data dtultimosv somente se elas forem iguais
+          if (formatISO(dateEntered) === formatISO(parseISO(dtultimosv))) {
+            await axios.put(
+              endpoint,
+              { qtddiaf: 0, dtultimosv: dateEntered },
+              {
                 headers: {
                   "Content-type": "application/json",
+                  Authorization: `Bearer ${token}`,
                 },
-              });
-            } else if (parseISO(dtultimosv) < today && dateEntered >= today) {
-              // Se a data cadastrada for anterior à data atual e a data inserida for posterior à data atual,
-              // adicionamos a diferença de dias ao contador qtddiaf e atualizamos a data dtultimosv
-              const diff = differenceInDays(today, parseISO(dtultimosv));
-              await axios.put(endpoint, { qtddiaf: qtddiaf + diff, dtultimosv: today }, {
-                headers: {
-                  "Content-type": "application/json",
-                },
-              });
-            } else if (parseISO(dtultimosv) < today && dateEntered < today) {
-              // Se a data cadastrada for anterior à data atual e a data inserida também for anterior à data atual,
-              // mantemos o contador qtddiaf e atualizamos a data dtultimosv somente se elas forem iguais
-              if (formatISO(dateEntered) === formatISO(parseISO(dtultimosv))) {
-                await axios.put(endpoint, { qtddiaf: 0, dtultimosv: dateEntered }, {
-                  headers: {
-                    "Content-type": "application/json",
-                  },
-                });
               }
-            }         
-           
+            );
           }
-    
-          window.alert("Cadastro efetuado com sucesso!");
-          setRegistros([...registros, registroAtual]);
-          event.target.reset();
-          window.location.reload(true);
+        }
+      }
+
+      window.alert("Cadastro efetuado com sucesso!");
+      setRegistros([...registros, registroAtual]);
+      event.target.reset();
+      window.location.reload(true);
     } catch (error) {
       console.error("Erro ao criar registro:", error);
     }
@@ -230,26 +307,31 @@ function Servico() {
 
   async function handleDelete(id) {
     const confirmDelete = window.confirm(
-      "Tem certeza que deseja excluir essa escala?"
+      "Ao Excluir pode ser necessario ajustar a data do ultimo serviço e a folga do militar, tem certeza que deseja excluir essa escala?"
     );
     if (confirmDelete) {
-      axios.delete(`http://localhost:5000/servicos/${id}`);
+      axios.delete(`http://localhost:5000/servicos/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const novosRegistros = registros.filter((registro) => registro.id !== id);
       setRegistros(novosRegistros);
     }
   }
 
   const buscarRegistro = async (id) => {
-    const response = await axios.get(`http://localhost:5000/servicos/${id}`);
+    const response = await axios.get(`http://localhost:5000/servicos/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     setRegistroAtual(response.data);
     setIsModalOpen2(true);
   };
 
   const confirmaEdicao = async (event) => {
     event.preventDefault();
-    // // Buscar os dados passando id
-
-    console.log("chegou aqui");
     const editRegistro = {
       data: event.target.date.value,
 
@@ -290,13 +372,16 @@ function Servico() {
       geraladm: event.target.geraladm.value,
       jusdis: event.target.jusdis.value,
     };
-    console.log(editRegistro);
-
     try {
       // Faz a requisição PUT enviando os dados a serem atualizados no corpo da requisição
       axios.put(
         `http://localhost:5000/servicos/${registroAtual.id}`,
-        editRegistro
+        editRegistro,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       setIsModalOpen2(false);
       window.location.reload(true);
@@ -306,38 +391,38 @@ function Servico() {
     }
   };
 
- 
   function handleModalClose() {
     setIsModalOpen1(false);
     setIsModalOpen2(false);
   }
 
   const atualizarContadorTodosMilitares = async () => {
-  
     try {
-      let i = 0
+      let i = 0;
       while (i < dadosMilitar.length) {
-        console.log("entrou")
         const endpoint = `http://localhost:5000/militares/${dadosMilitar[i].id}`;
-        console.log("entrou2")
-        console.log(endpoint)
-        const { data: militar } = await axios.get(endpoint);
-        console.log("entrou3")
+        const { data: militar } = await axios.get(endpoint, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("entrou3");
         const novoContador = militar.qtddiaf + 1;
-     
+
         await axios.put(
           endpoint,
           { qtddiaf: novoContador },
           {
             headers: {
               "Content-type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
           }
         );
         i++;
-        console.log("entrou3")
+        console.log("entrou3");
       }
-           console.log("Contador atualizado com sucesso para todos os militares!");
+      console.log("Contador atualizado com sucesso para todos os militares!");
     } catch (error) {
       console.error(
         "Erro ao atualizar contador para todos os militares:",
@@ -361,7 +446,7 @@ function Servico() {
           </div>
           <Form>
             <Row>
-              <Col  xs={12} md={8}>
+              <Col xs={12} md={8}>
                 <Form.Group>
                   <Form.Select
                     value={data}
@@ -627,7 +712,13 @@ function Servico() {
                     controlId="exampleForm.ControlInput1"
                   >
                     <Form.Label>Dia do serviço </Form.Label>
-                    <Form.Control type="date" id="date" name="date" required />
+                    <Form.Control
+                      type="date"
+                      // min={minDate}
+                      id="date"
+                      name="date"
+                      required
+                    />
                   </Form.Group>
                 </Col>
               </Row>
@@ -1865,6 +1956,34 @@ function Servico() {
           </Form>
         </Modal>
       </div>
+      <Pagination size="lg" className="justify-content-center">
+        <Pagination.First
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+        />
+        <Pagination.Prev
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        />
+        {[...Array(totalPages).keys()].map((page) => (
+          <Pagination.Item
+            key={page + 1}
+            active={currentPage === page + 1}
+            onClick={() => handlePageChange(page + 1)}
+          >
+            {page + 1}
+          </Pagination.Item>
+        ))}
+        <Pagination.Next
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        />
+        <Pagination.Last
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        />
+      </Pagination>
+      <h3 className="text-center">Pagina</h3>
     </>
   );
 }

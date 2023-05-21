@@ -6,6 +6,15 @@ import Nav from "react-bootstrap/Nav";
 import "./nav-bar.css";
 
 function NavBar() {
+
+  const Logoff = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('name')
+    localStorage.removeItem('id')
+    localStorage.removeItem('cat')
+  }
+ 
+
   return (
     <>
       <Nav
@@ -73,7 +82,7 @@ function NavBar() {
                   </Nav.Link>
                 </li>
                 <li className="nav-item">
-                  <Nav.Link href="/" className="navbar-link">
+                  <Nav.Link href="/" onClick={Logoff} className="navbar-link">
                     <span>Exit</span>
                   </Nav.Link>
                 </li>
