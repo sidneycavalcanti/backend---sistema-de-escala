@@ -55,6 +55,12 @@ border: 1px solid #666666;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
+.center {
+  padding: 20px;
+  left: 35%;
+}
+
+
 html {
   font-family: sans-serif;
   line-height: 1.15;

@@ -21,6 +21,7 @@ function Servico() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [minDate, setMinDate] = useState("");
+  const [escalaTipo, setEscalaTipo] = useState();
 
   const token = localStorage.getItem("token");
   const currentDate = new Date().toISOString().split("T")[0];
@@ -52,6 +53,10 @@ function Servico() {
     setMinDate(currentDate);
   }
 
+  const handleRadioChange = (event) => {
+    setEscalaTipo(event.target.value);
+  };
+
   const fetchRegistro = async () => {
     try {
       const response = await axios.get(
@@ -77,7 +82,7 @@ function Servico() {
             setRegistros(response.data.data);
             setCurrentPage(totalPages);
           })
-        
+
           .catch((err) => {
             console.error("Não foi possivel obter os dados do servidor:", err);
           });
@@ -85,9 +90,7 @@ function Servico() {
         console.error("Não foi possivel obter os dados do servidor:", err);
       }
     }
-   
   };
-  console.log(registros)
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -167,14 +170,11 @@ function Servico() {
       event.target.armeiro.value,
     ];
 
-    const response = await axios.get(
-      "http://localhost:5000/servicos",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await axios.get("http://localhost:5000/servicos", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     const registros = response.data.data;
 
@@ -190,9 +190,9 @@ function Servico() {
 
     try {
       const novoRegistro = {
-        //id: Date.now(),
         data: novaData,
-
+        bi: event.target.bi.value,
+        escala: escalaTipo,
         oficial_id: event.target.oficial.value,
         sgtdia_id: event.target.sgt.value,
         cbgd_id: event.target.cb.value,
@@ -238,62 +238,71 @@ function Servico() {
         },
       });
 
-      const { formatISO, parseISO, differenceInDays } = require("date-fns");
+      const { parseISO, formatISO, differenceInDays } = require('date-fns');
 
       for (let i = 0; i < idsMilitares.length; i++) {
         const endpoint = `http://localhost:5000/militarestotal/${idsMilitares[i]}`;
-        const { data } = await axios.get(endpoint,{
+        const { data } = await axios.get(endpoint, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const { dtultimosv, qtddiaf } = data;
 
+
+        const dtultimosvISO = new Date(dtultimosv).toJSON();
+
         const today = new Date();
         const dateEntered = parseISO(event.target.date.value);
 
-        // formatISO() converte a data para o formato "YYYY-MM-DD" que é o formato esperado pelo servidor
-        if (formatISO(dtultimosv) === formatISO(today)) {
-          await axios.put(
-            endpoint,
-            { qtddiaf: 0 },
-            {
-              headers: {
-                "Content-type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-        } else if (parseISO(dtultimosv) < today && dateEntered >= today) {
-          // Se a data cadastrada for anterior à data atual e a data inserida for posterior à data atual,
-          // adicionamos a diferença de dias ao contador qtddiaf e atualizamos a data dtultimosv
-          const diff = differenceInDays(today, parseISO(dtultimosv));
-          await axios.put(
-            endpoint,
-            { qtddiaf: qtddiaf + diff, dtultimosv: today },
-            {
-              headers: {
-                "Content-type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-        } else if (parseISO(dtultimosv) < today && dateEntered < today) {
-          // Se a data cadastrada for anterior à data atual e a data inserida também for anterior à data atual,
-          // mantemos o contador qtddiaf e atualizamos a data dtultimosv somente se elas forem iguais
-          if (formatISO(dateEntered) === formatISO(parseISO(dtultimosv))) {
-            await axios.put(
-              endpoint,
-              { qtddiaf: 0, dtultimosv: dateEntered },
-              {
-                headers: {
-                  "Content-type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-          }
+        if(){
+
         }
+
+
+        // const dtultimosvDate = parseISO(dtultimosv);
+        // formatISO() converte a data para o formato "YYYY-MM-DD" que é o formato esperado pelo servidor
+        // if (formatISO(dtultimosvDate) === formatISO(today)) {
+        //   await axios.put(
+        //     endpoint,
+        //     { qtddiaf: 0 },
+        //     {
+        //       headers: {
+        //         "Content-type": "application/json",
+        //         Authorization: `Bearer ${token}`,
+        //       },
+        //     }
+        //   );
+        // } else if (parseISO(dtultimosvDate) < today && dateEntered >= today) {
+        //   // Se a data cadastrada for anterior à data atual e a data inserida for posterior à data atual,
+        //   // adicionamos a diferença de dias ao contador qtddiaf e atualizamos a data dtultimosv
+        //   const diff = differenceInDays(today, parseISO(dtultimosvDate));
+        //   await axios.put(
+        //     endpoint,
+        //     { qtddiaf: qtddiaf + diff, dtultimosv: today },
+        //     {
+        //       headers: {
+        //         "Content-type": "application/json",
+        //         Authorization: `Bearer ${token}`,
+        //       },
+        //     }
+        //   );
+        // } else if (parseISO(dtultimosvDate) < today && dateEntered < today) {
+        //   // Se a data cadastrada for anterior à data atual e a data inserida também for anterior à data atual,
+        //   // mantemos o contador qtddiaf e atualizamos a data dtultimosv somente se elas forem iguais
+        //   if (formatISO(dateEntered) === formatISO(parseISO(dtultimosvDate))) {
+        //     await axios.put(
+        //       endpoint,
+        //       { qtddiaf: 0, dtultimosv: dateEntered },
+        //       {
+        //         headers: {
+        //           "Content-type": "application/json",
+        //           Authorization: `Bearer ${token}`,
+        //         },
+        //       }
+        //     );
+        //   }
+        // }
       }
 
       window.alert("Cadastro efetuado com sucesso!");
@@ -399,6 +408,9 @@ function Servico() {
   const atualizarContadorTodosMilitares = async () => {
     try {
       let i = 0;
+
+      const { parseISO, formatISO, differenceInDays } = require("date-fns");
+
       while (i < dadosMilitar.length) {
         const endpoint = `http://localhost:5000/militares/${dadosMilitar[i].id}`;
         const { data: militar } = await axios.get(endpoint, {
@@ -406,23 +418,33 @@ function Servico() {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("entrou3");
-        const novoContador = militar.qtddiaf + 1;
-
-        await axios.put(
-          endpoint,
-          { qtddiaf: novoContador },
-          {
-            headers: {
-              "Content-type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const dtultimosvDate = parseISO(militar.dtultimosv);
+        const today = new Date();
+        if (dtultimosvDate === formatISO(today)) {
+          await axios.put(
+            endpoint,
+            { qtddiaf: 0 },
+            {
+              headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        } else {
+          await axios.put(
+            endpoint,
+            { qtddiaf: +1 },
+            {
+              headers: {
+                "Content-type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        }
         i++;
-        console.log("entrou3");
       }
-      console.log("Contador atualizado com sucesso para todos os militares!");
     } catch (error) {
       console.error(
         "Erro ao atualizar contador para todos os militares:",
@@ -707,19 +729,41 @@ function Servico() {
             <Modal.Body className="show-grid">
               <Row>
                 <Col>
-                  <Form.Group
-                    className="mb-5"
-                    controlId="exampleForm.ControlInput1"
-                  >
-                    <Form.Label>Dia do serviço </Form.Label>
-                    <Form.Control
-                      type="date"
-                      // min={minDate}
-                      id="date"
-                      name="date"
-                      required
+                  <Col className="center">
+                    <Form.Check
+                      inline
+                      label="Preta"
+                      name="group1"
+                      type="radio"
+                      id="preta"
+                      value={true}
+                      onChange={handleRadioChange}
                     />
-                  </Form.Group>
+                    <Form.Check
+                      inline
+                      label="Vermelha"
+                      name="group1"
+                      type="radio"
+                      id="vermelha"
+                      value={false}
+                      onChange={handleRadioChange}
+                    />
+                  </Col>
+                  <Row>
+                    <Form.Group
+                      className="mb-5"
+                      controlId="exampleForm.ControlInput1"
+                    >
+                      <Form.Label>Dia do serviço </Form.Label>
+                      <Form.Control
+                        type="date"
+                        min={minDate}
+                        id="date"
+                        name="date"
+                        required
+                      />
+                    </Form.Group>
+                  </Row>
                 </Col>
               </Row>
 
@@ -939,7 +983,7 @@ function Servico() {
                       <option value="" disabled selected>
                         Primeiro quarto
                       </option>
-                      <option value="">Não tem</option>
+
                       {dadosMilitar.map((item) => (
                         <option value={item.id} key={item.id}>
                           {item.gradId.name} - {item.name}
@@ -957,7 +1001,7 @@ function Servico() {
                       <option value="" disabled selected>
                         Segundo quarto
                       </option>
-                      <option value="">Não tem</option>
+
                       {dadosMilitar.map((item) => (
                         <option value={item.id} key={item.id}>
                           {item.gradId.name} - {item.name}
@@ -975,7 +1019,7 @@ function Servico() {
                       <option value="" disabled selected>
                         Terceiro quarto
                       </option>
-                      <option value="">Não tem</option>
+
                       {dadosMilitar.map((item) => (
                         <option value={item.id} key={item.id}>
                           {item.gradId.name} - {item.name}
@@ -1327,7 +1371,23 @@ function Servico() {
           <Form onSubmit={confirmaEdicao}>
             <Modal.Body className="show-grid">
               <Row>
-                <Col>
+                <Col className="center">
+                  <Form.Check
+                    inline
+                    label="Preta"
+                    name="group1"
+                    type="radio"
+                    id=""
+                  />
+                  <Form.Check
+                    inline
+                    label="Vermelha"
+                    name="group1"
+                    type="radio"
+                    id=""
+                  />
+                </Col>
+                <Row>
                   <Form.Group
                     className="mb-5"
                     controlId="exampleForm.ControlInput1"
@@ -1341,7 +1401,7 @@ function Servico() {
                       required
                     />
                   </Form.Group>
-                </Col>
+                </Row>
               </Row>
 
               <Row>
@@ -1575,7 +1635,7 @@ function Servico() {
                       <option value="" disabled selected>
                         Primeiro quarto
                       </option>
-                      <option value="">Não tem</option>
+
                       {dadosMilitar.map((item) => (
                         <option value={item.id} key={item.id}>
                           {item.gradId.name} - {item.name}
@@ -1594,7 +1654,7 @@ function Servico() {
                       <option value="" disabled selected>
                         Segundo quarto
                       </option>
-                      <option value="">Não tem</option>
+
                       {dadosMilitar.map((item) => (
                         <option value={item.id} key={item.id}>
                           {item.gradId.name} - {item.name}
@@ -1613,7 +1673,7 @@ function Servico() {
                       <option value="" disabled selected>
                         Terceiro quarto
                       </option>
-                      <option value="">Não tem</option>
+
                       {dadosMilitar.map((item) => (
                         <option value={item.id} key={item.id}>
                           {item.gradId.name} - {item.name}
