@@ -21,7 +21,6 @@ function Servico() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [minDate, setMinDate] = useState("");
-  const [escalaTipo, setEscalaTipo] = useState();
 
   const token = localStorage.getItem("token");
   const currentDate = new Date().toISOString().split("T")[0];
@@ -53,10 +52,6 @@ function Servico() {
     setMinDate(currentDate);
   }
 
-  const handleRadioChange = (event) => {
-    setEscalaTipo(event.target.value);
-  };
-
   const fetchRegistro = async () => {
     try {
       const response = await axios.get(
@@ -83,12 +78,15 @@ function Servico() {
             setCurrentPage(totalPages);
           })
 
+        
+
           .catch((err) => {
             console.error("Não foi possivel obter os dados do servidor:", err);
           });
       } else {
         console.error("Não foi possivel obter os dados do servidor:", err);
       }
+       
     }
   };
 
@@ -135,64 +133,31 @@ function Servico() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const novaData = event.target.date.value;
-    const idsMilitares = [
-      event.target.oficial.value,
-      event.target.sgt.value,
-      event.target.cb.value,
-      event.target.moto.value,
-      event.target.permrancho.value,
-      event.target.baia.value,
-
-      event.target.auxrancho1.value,
-      event.target.auxrancho2.value,
-      event.target.auxrancho3.value,
-
-      event.target.frente1.value,
-      event.target.frente2.value,
-      event.target.frente3.value,
-
-      event.target.tras1.value,
-      event.target.tras2.value,
-      event.target.tras3.value,
-
-      event.target.alojamento1.value,
-      event.target.alojamento2.value,
-      event.target.alojamento3.value,
-
-      event.target.garagem1.value,
-      event.target.garagem2.value,
-      event.target.garagem3.value,
-
-      event.target.pavsup1.value,
-      event.target.pavsup2.value,
-
-      event.target.armeiro.value,
-    ];
-
-    const response = await axios.get("http://localhost:5000/servicos", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const registros = response.data.data;
-
-    const registroExistente = registros.find(
-      (registro) => registro.data === novaData
-    );
-
-    if (registroExistente) {
-      const dataCadastrada = registroExistente.data;
-      alert(`Já existe um registro para esta data (${dataCadastrada})`);
-      return;
-    }
-
     try {
+      const novaData = event.target.date.value;
+    
+      const response = await axios.get("http://localhost:5000/servicos", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const registros = response.data.data;
+  
+      const registroExistente = registros.find(
+        (registro) => registro.data === novaData
+      );
+  
+      if (registroExistente) {
+        const dataCadastrada = registroExistente.data;
+        alert(`Já existe um registro para esta data (${dataCadastrada})`);
+        return;
+      }
+
       const novoRegistro = {
         data: novaData,
         bi: event.target.bi.value,
-        escala: escalaTipo,
+        escala: event.target.escala.value,
         oficial_id: event.target.oficial.value,
         sgtdia_id: event.target.sgt.value,
         cbgd_id: event.target.cb.value,
@@ -237,73 +202,6 @@ function Servico() {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      const { parseISO, formatISO, differenceInDays } = require('date-fns');
-
-      for (let i = 0; i < idsMilitares.length; i++) {
-        const endpoint = `http://localhost:5000/militarestotal/${idsMilitares[i]}`;
-        const { data } = await axios.get(endpoint, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const { dtultimosv, qtddiaf } = data;
-
-
-        const dtultimosvISO = new Date(dtultimosv).toJSON();
-
-        const today = new Date();
-        const dateEntered = parseISO(event.target.date.value);
-
-        if(){
-
-        }
-
-
-        // const dtultimosvDate = parseISO(dtultimosv);
-        // formatISO() converte a data para o formato "YYYY-MM-DD" que é o formato esperado pelo servidor
-        // if (formatISO(dtultimosvDate) === formatISO(today)) {
-        //   await axios.put(
-        //     endpoint,
-        //     { qtddiaf: 0 },
-        //     {
-        //       headers: {
-        //         "Content-type": "application/json",
-        //         Authorization: `Bearer ${token}`,
-        //       },
-        //     }
-        //   );
-        // } else if (parseISO(dtultimosvDate) < today && dateEntered >= today) {
-        //   // Se a data cadastrada for anterior à data atual e a data inserida for posterior à data atual,
-        //   // adicionamos a diferença de dias ao contador qtddiaf e atualizamos a data dtultimosv
-        //   const diff = differenceInDays(today, parseISO(dtultimosvDate));
-        //   await axios.put(
-        //     endpoint,
-        //     { qtddiaf: qtddiaf + diff, dtultimosv: today },
-        //     {
-        //       headers: {
-        //         "Content-type": "application/json",
-        //         Authorization: `Bearer ${token}`,
-        //       },
-        //     }
-        //   );
-        // } else if (parseISO(dtultimosvDate) < today && dateEntered < today) {
-        //   // Se a data cadastrada for anterior à data atual e a data inserida também for anterior à data atual,
-        //   // mantemos o contador qtddiaf e atualizamos a data dtultimosv somente se elas forem iguais
-        //   if (formatISO(dateEntered) === formatISO(parseISO(dtultimosvDate))) {
-        //     await axios.put(
-        //       endpoint,
-        //       { qtddiaf: 0, dtultimosv: dateEntered },
-        //       {
-        //         headers: {
-        //           "Content-type": "application/json",
-        //           Authorization: `Bearer ${token}`,
-        //         },
-        //       }
-        //     );
-        //   }
-        // }
-      }
 
       window.alert("Cadastro efetuado com sucesso!");
       setRegistros([...registros, registroAtual]);
@@ -381,6 +279,7 @@ function Servico() {
       geraladm: event.target.geraladm.value,
       jusdis: event.target.jusdis.value,
     };
+
     try {
       // Faz a requisição PUT enviando os dados a serem atualizados no corpo da requisição
       axios.put(
@@ -407,49 +306,92 @@ function Servico() {
 
   const atualizarContadorTodosMilitares = async () => {
     try {
-      let i = 0;
-
-      const { parseISO, formatISO, differenceInDays } = require("date-fns");
-
-      while (i < dadosMilitar.length) {
-        const endpoint = `http://localhost:5000/militares/${dadosMilitar[i].id}`;
-        const { data: militar } = await axios.get(endpoint, {
+      const { parseISO, formatISO } = require("date-fns");
+  
+      for (let i = 0; i < registros.length; i++) {
+        const endpoint = `http://localhost:5000/servicos/${registros[i].id}`;
+        const { data: servicos } = await axios.get(endpoint, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        const dtultimosvDate = parseISO(militar.dtultimosv);
-        const today = new Date();
-        if (dtultimosvDate === formatISO(today)) {
-          await axios.put(
-            endpoint,
-            { qtddiaf: 0 },
-            {
+  
+        if (servicos.escala === true) {
+          for (let j = 0; j < dadosMilitar.length; j++) {
+            const endpoint = `http://localhost:5000/militares/${dadosMilitar[j].id}`;
+            const { data: militar } = await axios.get(endpoint, {
               headers: {
-                "Content-type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
+            });
+  
+            const dtultimosvDate = parseISO(militar.dtultimosv);
+            const today = new Date();
+  
+            if (dtultimosvDate.toISOString() === formatISO(today)) {
+              await axios.put(
+                endpoint,
+                { qtddiaf: 0 },
+                {
+                  headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+            } else {
+              await axios.put(
+                endpoint,
+                { qtddiaf: militar.qtddiaf + 1 },
+                {
+                  headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
             }
-          );
+          }
         } else {
-          await axios.put(
-            endpoint,
-            { qtddiaf: +1 },
-            {
+          for (let j = 0; j < dadosMilitar.length; j++) {
+            const endpoint = `http://localhost:5000/militares/${dadosMilitar[j].id}`;
+            const { data: militar } = await axios.get(endpoint, {
               headers: {
-                "Content-type": "application/json",
                 Authorization: `Bearer ${token}`,
               },
+            });
+  
+            const dtultimosvDate = parseISO(militar.dtultimosv);
+            const today = new Date();
+  
+            if (dtultimosvDate.toISOString() === formatISO(today)) {
+              await axios.put(
+                endpoint,
+                { qtddiaf: 0 },
+                {
+                  headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+            } else {
+              await axios.put(
+                endpoint,
+                { qtddiaf: militar.qtddiaf + 1 },
+                {
+                  headers: {
+                    "Content-type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
             }
-          );
+          }
         }
-        i++;
       }
     } catch (error) {
-      console.error(
-        "Erro ao atualizar contador para todos os militares:",
-        error
-      );
+      console.error("Erro ao atualizar contador para todos os militares:", error);
     }
   };
 
@@ -538,6 +480,8 @@ function Servico() {
                     <>
                       <thead>
                         <tr>
+                          <th>BI</th>
+                          <th>Escala</th>
                           <th>Data</th>
                           <th>Oficial</th>
                           <th>Sgt de Dia</th>
@@ -552,6 +496,12 @@ function Servico() {
                       </thead>
                       <tbody>
                         <tr key={registro.id}>
+                          <td>{registro.bi}</td>
+                          <td
+                            className={registro.escala ? "preta" : "vermelha"}
+                          >
+                            {registro.escala ? "Preta" : "Vermelha"}
+                          </td>
                           <td>{registro.data}</td>
                           <td>
                             {registro.oficialId.gradId.name} -{" "}
@@ -728,45 +678,53 @@ function Servico() {
           <Form onSubmit={handleSubmit}>
             <Modal.Body className="show-grid">
               <Row>
-                <Col>
-                  <Col className="center">
-                    <Form.Check
-                      inline
-                      label="Preta"
-                      name="group1"
-                      type="radio"
-                      id="preta"
-                      value={true}
-                      onChange={handleRadioChange}
-                    />
-                    <Form.Check
-                      inline
-                      label="Vermelha"
-                      name="group1"
-                      type="radio"
-                      id="vermelha"
-                      value={false}
-                      onChange={handleRadioChange}
-                    />
-                  </Col>
-                  <Row>
-                    <Form.Group
-                      className="mb-5"
-                      controlId="exampleForm.ControlInput1"
-                    >
-                      <Form.Label>Dia do serviço </Form.Label>
-                      <Form.Control
-                        type="date"
-                        min={minDate}
-                        id="date"
-                        name="date"
-                        required
-                      />
-                    </Form.Group>
-                  </Row>
+                <Col className="center">
+                  <Form.Check
+                    inline
+                    label="Preta"
+                    name="group1"
+                    type="radio"
+                    id="escala"
+                    value={true}
+                    // onChange={handleRadioChange}
+                  />
+                  <Form.Check
+                    inline
+                    label="Vermelha"
+                    name="group1"
+                    type="radio"
+                    id="escala"
+                    value={false}
+                    // onChange={handleRadioChange}
+                  />
                 </Col>
               </Row>
-
+              <Row>
+                <Col>
+                  <Form.Group
+                    className="mb-5"
+                    controlId="exampleForm.ControlInput1"
+                  >
+                    <Form.Label>Dia do serviço </Form.Label>
+                    <Form.Control
+                      type="date"
+                      min={minDate}
+                      id="date"
+                      name="date"
+                      required
+                    />
+                  </Form.Group>
+                </Col>
+                <Col>
+                  <Form.Group
+                    className="mb-5"
+                    controlId="exampleForm.ControlInput1"
+                  >
+                    <Form.Label>Informar BI</Form.Label>
+                    <Form.Control type="number" id="bi" name="bi" required />
+                  </Form.Group>
+                </Col>
+              </Row>
               <Row>
                 <Col>
                   <Form.Group
@@ -1377,30 +1335,51 @@ function Servico() {
                     label="Preta"
                     name="group1"
                     type="radio"
-                    id=""
+                    id="escala"
+                    value={true}
+                    checked={registroAtual.escala == true}
                   />
                   <Form.Check
                     inline
                     label="Vermelha"
                     name="group1"
                     type="radio"
-                    id=""
+                    id="escala"
+                    value={false}
+                    checked={registroAtual.escala == false}
                   />
                 </Col>
                 <Row>
-                  <Form.Group
-                    className="mb-5"
-                    controlId="exampleForm.ControlInput1"
-                  >
-                    <Form.Label>Dia do serviço </Form.Label>
-                    <Form.Control
-                      defaultValue={registroAtual.data}
-                      type="date"
-                      id="date"
-                      name="date"
-                      required
-                    />
-                  </Form.Group>
+                  <Col>
+                    <Form.Group
+                      className="mb-5"
+                      controlId="exampleForm.ControlInput1"
+                    >
+                      <Form.Label>Dia do serviço </Form.Label>
+                      <Form.Control
+                        defaultValue={registroAtual.data}
+                        type="date"
+                        id="date"
+                        name="date"
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col>
+                    <Form.Group
+                      className="mb-5"
+                      controlId="exampleForm.ControlInput1"
+                    >
+                      <Form.Label>Informar BI</Form.Label>
+                      <Form.Control
+                        defaultValue={registroAtual.bi}
+                        type="number"
+                        id="bi"
+                        name="bi"
+                        required
+                      />
+                    </Form.Group>
+                  </Col>
                 </Row>
               </Row>
 

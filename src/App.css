@@ -60,6 +60,16 @@ border: 1px solid #666666;
   left: 35%;
 }
 
+.preta {
+  background-color: black;
+  color: rgb(0, 0, 0);
+}
+
+.vermelha {
+  background-color: red;
+  color: rgb(255, 0, 0);
+}
+
 
 html {
   font-family: sans-serif;
