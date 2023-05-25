@@ -386,7 +386,7 @@ function Servico() {
                   },
                 }
               );
-            } else {
+            } else  if (formatISO(data, { representation: "date" }) > formatISO(today, { representation: "date" })) {
               await axios.put(
                 endpointMilitar,
                 { qtddiaf: militar.qtddiaf + 1 },
@@ -396,6 +396,8 @@ function Servico() {
                   },
                 }
               );
+            } else {
+              return;
             }
           }
          
@@ -425,16 +427,18 @@ function Servico() {
                     },
                   }
                 );
-              } else {
+              } else  if (formatISO(data, { representation: "date" }) > formatISO(today, { representation: "date" })) {
                 await axios.put(
                   endpointMilitar,
-                  { qtddiaf: militar.qtddiaf + 1 },
+                  { qtddiafvermelha: militar.qtddiafvermelha + 1 },
                   {
                     headers: {
                       Authorization: `Bearer ${token}`,
                     },
                   }
                 );
+              } else {
+                return;
               }
             }
 

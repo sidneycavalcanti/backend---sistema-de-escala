@@ -148,12 +148,18 @@ const Militar = () => {
   //Cadastrar Militar no banco de dados
   const handleSubmit = async (event) => {
     const novoRegistro = {
+
       idt: event.target.idt.value,
       grad: event.target.grad.value,
       name: event.target.name.value,
       num: event.target.num.value,
-      dtultimosv: event.target.dtultimosv.value,
+      
+      dtultimosvpre: event.target.dtultimosvpre.value,
+      dtultimosverm: event.target.dtultimosverm.value,
+
       qtddiaf: event.target.qtddiaf.value,
+      qtddiafvermelha: event.target.qtddiafvermelha.value,
+
     };
 
     console.log(novoRegistro);
@@ -515,11 +521,11 @@ const Militar = () => {
                             className="mb-5"
                             controlId="exampleForm.ControlInput1"
                           >
-                            <Form.Label>Data do ultimo serviço</Form.Label>
+                            <Form.Label>Data do ultimo serviço preta</Form.Label>
                             <Form.Control
                               type="date"
-                              id="dtultimosv"
-                              name="dtultimosv"
+                              id="dtultimosvpre"
+                              name="dtultimosvpre"
                               required
                             />
                           </Form.Group>
@@ -529,11 +535,41 @@ const Militar = () => {
                             className="mb-5"
                             controlId="exampleForm.ControlInput1"
                           >
-                            <Form.Label>Dias folgando</Form.Label>
+                            <Form.Label>Dias folgando preta</Form.Label>
                             <Form.Control
                               type="number"
                               id="qtddiaf"
                               name="qtddiaf"
+                              required
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Data do ultimo serviço vermelha</Form.Label>
+                            <Form.Control
+                              type="date"
+                              id="dtultimosverm"
+                              name="dtultimosverm"
+                              required
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Dias folgando vermelha</Form.Label>
+                            <Form.Control
+                              type="number"
+                              id="qtddiafvermelha"
+                              name="qtddiafvermelha"
                               required
                             />
                           </Form.Group>
@@ -646,13 +682,13 @@ const Militar = () => {
                             className="mb-5"
                             controlId="exampleForm.ControlInput1"
                           >
-                            <Form.Label>Data do ultimo serviço</Form.Label>
+                            <Form.Label>Data do ultimo serviço preta</Form.Label>
                             <Form.Control
                               type="date"
-                              id="dtultimosv"
-                              name="dtultimosv"
+                              id="dtultimosvpre"
+                              name="dtultimosvpre"
                               required
-                              defaultValue={registroAtual.dtultimosv}
+                              defaultValue={registroAtual.dtultimosvpre}
                             />
                           </Form.Group>
                         </Col>
@@ -661,13 +697,45 @@ const Militar = () => {
                             className="mb-5"
                             controlId="exampleForm.ControlInput1"
                           >
-                            <Form.Label>Dias folgando</Form.Label>
+                            <Form.Label>Dias folgando preta</Form.Label>
                             <Form.Control
                               type="number"
                               id="qtddiaf"
                               name="qtddiaf"
                               required
                               defaultValue={registroAtual.qtddiaf}
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Data do ultimo serviço vermelha</Form.Label>
+                            <Form.Control
+                              type="date"
+                              id="dtultimosverm"
+                              name="dtultimosverm"
+                              required
+                              defaultValue={registroAtual.dtultimosverm}
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Dias folgando vermelha</Form.Label>
+                            <Form.Control
+                              type="number"
+                              id="qtddiafvermelha"
+                              name="qtddiafvermelha"
+                              required
+                              defaultValue={registroAtual.qtddiafvermelha}
                             />
                           </Form.Group>
                         </Col>
