@@ -363,9 +363,10 @@ const Militar = () => {
                         <th>Numero</th>
                         <th>Graduação</th>
                         <th>Nome de guerra</th>
-                        <th>Quantidade de serviço</th>
-                        <th>Ultimo dia de serviço</th>
-                        <th>Dias folgando</th>
+                        <th>Ultimo serviço preta</th>
+                        <th>Dias de folga da preta</th>
+                        <th>Ultimo serviço vermelha</th>
+                        <th>Dias de folga da vermelha</th>
                         <th>Ação</th>
                       </tr>
                     </thead>
@@ -376,9 +377,10 @@ const Militar = () => {
                             <td>{registro.num}</td>
                             <td>{registro.gradId.name}</td>
                             <td>{registro.name}</td>
-                            <td>{registro.qtdsv}</td>
-                            <td>{registro.dtultimosv}</td>
+                            <td>{registro.dtultimosvpre}</td>
                             <td>{registro.qtddiaf}</td>
+                            <td>{registro.dtultimosverm}</td>
+                            <td>{registro.qtddiafvermelha}</td>
                             <td>
                               <div
                                 className="btn-group"

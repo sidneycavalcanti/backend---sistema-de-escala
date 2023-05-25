@@ -12,6 +12,7 @@ import axios from "axios";
 function Servico() {
   const [dadosMilitar, setDadosMilitar] = useState([]);
   const [registros, setRegistros] = useState([]);
+  const [registrostotal, setRegistrosTotal] = useState([])
   const [registroAtual, setRegistroAtual] = useState({});
   const [isModalOpen1, setIsModalOpen1] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
@@ -304,34 +305,80 @@ function Servico() {
     setIsModalOpen2(false);
   }
 
-  const atualizarContadorTodosMilitares = async () => {
+  const atualizarDadosTodosMilitares = async () => {
+    
     try {
       const { parseISO, formatISO } = require("date-fns");
-  
-      for (let i = 0; i < registros.length; i++) {
-        const endpoint = `http://localhost:5000/servicos/${registros[i].id}`;
+      
+      const response = await axios.get("http://localhost:5000/servicostotal",{
+          headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      setRegistrosTotal(response.data.data);
+
+      for (let i = 0; i < registrostotal.length; i++) {
+        const endpoint = `http://localhost:5000/servicostotal/${registrostotal[i].id}`;
         const { data: servicos } = await axios.get(endpoint, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+        
+        const data = parseISO(servicos.data);
+        const today = new Date();
   
+
+        const militares = [
+          
+          servicos.oficial_id,
+          servicos.sgtdia_id,
+          servicos.cbgd_id,
+          servicos.moto_id,
+          servicos.rancho_id,
+          servicos.parmcav_id,
+
+          servicos.auxrancho1_id,
+          servicos.auxrancho2_id,
+          servicos.auxrancho3_id,
+
+          servicos.frente1_id,
+          servicos.frente2_id,
+          servicos.frente3_id,
+
+          servicos.tras1_id,
+          servicos.tras2_id,
+          servicos.tras3_id,
+
+          servicos.aloj1_id,
+          servicos.aloj2_id,
+          servicos.aloj3_id,
+          
+          servicos.garagem1_id,
+          servicos.garagem2_id,
+          servicos.garagem3_id,
+        ];
+     
         if (servicos.escala === true) {
-          for (let j = 0; j < dadosMilitar.length; j++) {
-            const endpoint = `http://localhost:5000/militares/${dadosMilitar[j].id}`;
-            const { data: militar } = await axios.get(endpoint, {
+          
+          
+          for (let j = 0; j < militares.length; j++) {
+            const endpointMilitar = `http://localhost:5000/militarestotal/${militares[j]}`;
+            const { data: militar } = await axios.get(endpointMilitar, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            });
-  
-            const dtultimosvDate = parseISO(militar.dtultimosv);
-            const today = new Date();
-  
-            if (dtultimosvDate.toISOString() === formatISO(today)) {
+            })
+
+            
+            if (formatISO(data, { representation: "date" }) === formatISO(today, { representation: "date" })) {
               await axios.put(
-                endpoint,
-                { qtddiaf: 0 },
+                endpointMilitar,
+                { 
+                  qtddiaf: 0,
+                  dtultimosvpre: data,
+                },
                 {
                   headers: {
                     "Content-type": "application/json",
@@ -341,54 +388,59 @@ function Servico() {
               );
             } else {
               await axios.put(
-                endpoint,
+                endpointMilitar,
                 { qtddiaf: militar.qtddiaf + 1 },
                 {
                   headers: {
-                    "Content-type": "application/json",
                     Authorization: `Bearer ${token}`,
                   },
                 }
               );
             }
           }
-        } else {
-          for (let j = 0; j < dadosMilitar.length; j++) {
-            const endpoint = `http://localhost:5000/militares/${dadosMilitar[j].id}`;
-            const { data: militar } = await axios.get(endpoint, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
+         
+          }else if(servicos.escala === false){
+
+            for (let j = 0; j < militares.length; j++) {
+              const endpointMilitar = `http://localhost:5000/militarestotal/${militares[j]}`;
+              const { data: militar } = await axios.get(endpointMilitar, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              })
   
-            const dtultimosvDate = parseISO(militar.dtultimosv);
-            const today = new Date();
-  
-            if (dtultimosvDate.toISOString() === formatISO(today)) {
-              await axios.put(
-                endpoint,
-                { qtddiaf: 0 },
-                {
-                  headers: {
-                    "Content-type": "application/json",
-                    Authorization: `Bearer ${token}`,
+              const today = new Date();
+    
+              if (formatISO(data, { representation: "date" }) === formatISO(today, { representation: "date" })) {
+                await axios.put(
+                  endpointMilitar,
+                  { 
+                    qtddiafvermelha: 0,
+                    dtultimosverm: data,
                   },
-                }
-              );
-            } else {
-              await axios.put(
-                endpoint,
-                { qtddiaf: militar.qtddiaf + 1 },
-                {
-                  headers: {
-                    "Content-type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              );
+                  {
+                    headers: {
+                      "Content-type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+              } else {
+                await axios.put(
+                  endpointMilitar,
+                  { qtddiaf: militar.qtddiaf + 1 },
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+              }
             }
-          }
-        }
+
+          } else{
+            console.log("error")
+          } 
       }
     } catch (error) {
       console.error("Erro ao atualizar contador para todos os militares:", error);
@@ -396,7 +448,7 @@ function Servico() {
   };
 
   setInterval(() => {
-    atualizarContadorTodosMilitares();
+    atualizarDadosTodosMilitares();
   }, 24 * 60 * 60 * 1000); //24 horas vai somar mais 1
 
   return (
@@ -460,6 +512,9 @@ function Servico() {
       <div className="tabela">
         <Button variant="primary" onClick={() => setIsModalOpen1(true)}>
           Adicionar serviço
+        </Button>
+        <Button variant="primary" onClick={atualizarDadosTodosMilitares}>
+        Atualizar contador 
         </Button>
 
         <div className="row justify-content-center">
@@ -572,7 +627,7 @@ function Servico() {
                         </tr>
                         <Collapse in={open[registro.id]}>
                           <tr>
-                            <td colSpan="10">
+                            <td colSpan="12">
                               <thead>
                                 <tr>
                                   <th>Aux Perm ao Rancho</th>
