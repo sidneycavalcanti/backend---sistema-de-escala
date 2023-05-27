@@ -305,7 +305,7 @@ function Servico() {
     setIsModalOpen2(false);
   }
 
-  const atualizarDadosTodosMilitares = async () => {
+    const atualizarDadosTodosMilitares = async () => {
     
     try {
       const { parseISO, formatISO } = require("date-fns");
@@ -325,11 +325,10 @@ function Servico() {
             Authorization: `Bearer ${token}`,
           },
         });
-        
+
         const data = parseISO(servicos.data);
         const today = new Date();
   
-
         const militares = [
           
           servicos.oficial_id,
@@ -362,7 +361,6 @@ function Servico() {
      
         if (servicos.escala === true) {
           
-          
           for (let j = 0; j < militares.length; j++) {
             const endpointMilitar = `http://localhost:5000/militarestotal/${militares[j]}`;
             const { data: militar } = await axios.get(endpointMilitar, {
@@ -386,20 +384,19 @@ function Servico() {
                   },
                 }
               );
-            } else  if (formatISO(data, { representation: "date" }) > formatISO(today, { representation: "date" })) {
+            } else  if (formatISO(data, { representation: "date" }) > formatISO(today, { representation: "date" }))  {
               await axios.put(
-                endpointMilitar,
-                { qtddiaf: militar.qtddiaf + 1 },
+                dadosMilitar,
                 {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
+                  qtddiaf: qtddiaf + 1,
                 }
-              );
-            } else {
-              return;
+              )
+
+
             }
           }
+
+
          
           }else if(servicos.escala === false){
 
@@ -410,6 +407,7 @@ function Servico() {
                   Authorization: `Bearer ${token}`,
                 },
               })
+              
   
               const today = new Date();
     
@@ -427,24 +425,9 @@ function Servico() {
                     },
                   }
                 );
-              } else  if (formatISO(data, { representation: "date" }) > formatISO(today, { representation: "date" })) {
-                await axios.put(
-                  endpointMilitar,
-                  { qtddiafvermelha: militar.qtddiafvermelha + 1 },
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                );
-              } else {
-                return;
-              }
+              } 
             }
-
-          } else{
-            console.log("error")
-          } 
+          }
       }
     } catch (error) {
       console.error("Erro ao atualizar contador para todos os militares:", error);
