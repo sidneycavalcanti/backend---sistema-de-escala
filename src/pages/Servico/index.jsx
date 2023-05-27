@@ -12,11 +12,11 @@ import axios from "axios";
 function Servico() {
   const [dadosMilitar, setDadosMilitar] = useState([]);
   const [registros, setRegistros] = useState([]);
-  const [registrostotal, setRegistrosTotal] = useState([])
+  const [registrostotal, setRegistrosTotal] = useState([]);
   const [registroAtual, setRegistroAtual] = useState({});
   const [isModalOpen1, setIsModalOpen1] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
-  const [buttonText] = useState("Abrir");
+  const [buttonText, setButtonText] = useState("Abrir");
   const [open, setOpen] = useState({});
   const [data, setData] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -79,15 +79,12 @@ function Servico() {
             setCurrentPage(totalPages);
           })
 
-        
-
           .catch((err) => {
             console.error("Não foi possivel obter os dados do servidor:", err);
           });
       } else {
         console.error("Não foi possivel obter os dados do servidor:", err);
       }
-       
     }
   };
 
@@ -100,7 +97,7 @@ function Servico() {
       ...prevState,
       [index]: !prevState[index],
     }));
-    // setButtonText(prevText => prevText === "Abrir" ? "Fechar" : "Abrir");
+    setButtonText(prevText => prevText === "Abrir" ? "Fechar" : "Abrir");
   };
 
   const handlePesquisa = async (event) => {
@@ -135,20 +132,25 @@ function Servico() {
     event.preventDefault();
 
     try {
+      const { parseISO, formatISO } = require("date-fns");
+
       const novaData = event.target.date.value;
-    
+      const today = new Date();
+
+      const escala = event.target.escala.value;
+
       const response = await axios.get("http://localhost:5000/servicos", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       const registros = response.data.data;
-  
+
       const registroExistente = registros.find(
         (registro) => registro.data === novaData
       );
-  
+
       if (registroExistente) {
         const dataCadastrada = registroExistente.data;
         alert(`Já existe um registro para esta data (${dataCadastrada})`);
@@ -158,7 +160,7 @@ function Servico() {
       const novoRegistro = {
         data: novaData,
         bi: event.target.bi.value,
-        escala: event.target.escala.value,
+        escala: escala,
         oficial_id: event.target.oficial.value,
         sgtdia_id: event.target.sgt.value,
         cbgd_id: event.target.cb.value,
@@ -197,6 +199,35 @@ function Servico() {
         jusdis: event.target.jusdis.value,
       };
 
+      const idtMilitar = [
+       event.target.oficial.value,
+        event.target.sgt.value,
+       event.target.cb.value,
+         event.target.moto.value,
+        event.target.permrancho.value,
+         event.target.baia.value,
+
+         event.target.auxrancho1.value,
+         event.target.auxrancho2.value,
+         event.target.auxrancho3.value,
+
+         event.target.frente1.value,
+         event.target.frente2.value,
+         event.target.frente3.value,
+
+         event.target.tras1.value,
+       event.target.tras2.value,
+       event.target.tras3.value,
+
+        event.target.alojamento1.value,
+        event.target.alojamento2.value,
+       event.target.alojamento3.value,
+
+         event.target.garagem1.value,
+        event.target.garagem2.value,
+         event.target.garagem3.value,
+      ]
+
       await axios.post("http://localhost:5000/servicos", novoRegistro, {
         headers: {
           "Content-type": "application/json",
@@ -204,6 +235,42 @@ function Servico() {
         },
       });
 
+      if(data === today){
+        if(escala === true){
+          for(let i=0; i< idtMilitar.length; i++ ){
+            await axios.put(
+                        `http://localhost:5000/militarestotal/${idtMilitar[i]}`,
+                        {
+                          qtddiaf: 0,
+                          dtultimosvpre: data,
+                        },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        }
+                      );
+    
+          }
+        }else{
+          for(let i=0; i< idtMilitar.length; i++ ){
+            await axios.put(
+                        `http://localhost:5000/militarestotal/${idtMilitar[i]}`,
+                        {
+                          qtddiafvermelha: 0,
+                          dtultimosverm: data,
+                        },
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                        }
+                      );
+    
+        }
+      }
+    }
+    
       window.alert("Cadastro efetuado com sucesso!");
       setRegistros([...registros, registroAtual]);
       event.target.reset();
@@ -306,16 +373,15 @@ function Servico() {
   }
 
   const atualizarDadosTodosMilitares = async () => {
-    
     try {
       const { parseISO, formatISO } = require("date-fns");
-      
-      const response = await axios.get("http://localhost:5000/servicostotal",{
-          headers: {
+
+      const response = await axios.get("http://localhost:5000/servicostotal", {
+        headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+
       setRegistrosTotal(response.data.data);
 
       for (let i = 0; i < registrostotal.length; i++) {
@@ -325,13 +391,11 @@ function Servico() {
             Authorization: `Bearer ${token}`,
           },
         });
-        
+
         const data = parseISO(servicos.data);
         const today = new Date();
-  
 
         const militares = [
-          
           servicos.oficial_id,
           servicos.sgtdia_id,
           servicos.cbgd_id,
@@ -354,54 +418,39 @@ function Servico() {
           servicos.aloj1_id,
           servicos.aloj2_id,
           servicos.aloj3_id,
-          
+
           servicos.garagem1_id,
           servicos.garagem2_id,
           servicos.garagem3_id,
         ];
-     
-        if (servicos.escala === true) {
-          
-          
-          for (let j = 0; j < militares.length; j++) {
-            const endpointMilitar = `http://localhost:5000/militarestotal/${militares[j]}`;
-            const { data: militar } = await axios.get(endpointMilitar, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            })
 
-            
-            if (formatISO(data, { representation: "date" }) === formatISO(today, { representation: "date" })) {
+        if (
+          formatISO(data, { representation: "date" }) ===
+          formatISO(today, { representation: "date" })
+        ) {
+          if (servicos.escala === true) {
+
+            for (let j = 0; j < dadosMilitar.length; j++) {
+             
+              const endpointMilitar = `http://localhost:5000/militarestotal/${dadosMilitar[j].id}`;
+              const { data: militar } = await axios.get(endpointMilitar, {
+                headers:{
+                  Authorization: `Bearer ${token}`,
+                }
+              })
+              // console.log(militar.qtddiaf)
               await axios.put(
                 endpointMilitar,
-                { 
-                  qtddiaf: 0,
-                  dtultimosvpre: data,
+                {
+                  qtddiaf: militar.qtddiaf + 1,
                 },
                 {
                   headers: {
-                    "Content-type": "application/json",
                     Authorization: `Bearer ${token}`,
-                  },
+                  }
                 }
               );
-            } else  if (formatISO(data, { representation: "date" }) > formatISO(today, { representation: "date" })) {
-              await axios.put(
-                endpointMilitar,
-                { qtddiaf: militar.qtddiaf + 1 },
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                  },
-                }
-              );
-            } else {
-              return;
             }
-          }
-         
-          }else if(servicos.escala === false){
 
             for (let j = 0; j < militares.length; j++) {
               const endpointMilitar = `http://localhost:5000/militarestotal/${militares[j]}`;
@@ -409,51 +458,83 @@ function Servico() {
                 headers: {
                   Authorization: `Bearer ${token}`,
                 },
-              })
-  
-              const today = new Date();
-    
-              if (formatISO(data, { representation: "date" }) === formatISO(today, { representation: "date" })) {
-                await axios.put(
-                  endpointMilitar,
-                  { 
-                    qtddiafvermelha: 0,
-                    dtultimosverm: data,
+              });
+              console.log(militar)
+
+              await axios.put(
+                endpointMilitar,
+                {
+                  qtddiaf: 0,
+                  dtultimosvpre: data,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
                   },
-                  {
-                    headers: {
-                      "Content-type": "application/json",
-                      Authorization: `Bearer ${token}`,
-                    },
+                }
+              );
+            }
+          } else if (servicos.escala === false) {
+            for (let j = 0; j < dadosMilitar.length; j++) {
+             
+              const endpointMilitar = `http://localhost:5000/militarestotal/${dadosMilitar[j].id}`;
+              const { data: militar } = await axios.get(endpointMilitar, {
+                headers:{
+                  Authorization: `Bearer ${token}`,
+                }
+              })
+              // console.log(militar.qtddiaf)
+              await axios.put(
+                endpointMilitar,
+                {
+                  qtddiafvermelha: militar.qtddiafvermelha + 1,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
                   }
-                );
-              } else  if (formatISO(data, { representation: "date" }) > formatISO(today, { representation: "date" })) {
-                await axios.put(
-                  endpointMilitar,
-                  { qtddiafvermelha: militar.qtddiafvermelha + 1 },
-                  {
-                    headers: {
-                      Authorization: `Bearer ${token}`,
-                    },
-                  }
-                );
-              } else {
-                return;
-              }
+                }
+              );
             }
 
-          } else{
-            console.log("error")
-          } 
+            for (let j = 0; j < militares.length; j++) {
+              const endpointMilitar = `http://localhost:5000/militarestotal/${militares[j]}`;
+              const { data: militar } = await axios.get(endpointMilitar, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              });
+              console.log(militar)
+
+              await axios.put(
+                endpointMilitar,
+                {
+                  qtddiafvermelha: 0,
+                  dtultimosverm: data,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+            }
+          } else {
+            return;
+          }
+        }
       }
     } catch (error) {
-      console.error("Erro ao atualizar contador para todos os militares:", error);
+      console.error(
+        "Erro ao atualizar contador para todos os militares:",
+        error
+      );
     }
   };
 
   setInterval(() => {
     atualizarDadosTodosMilitares();
-  }, 24 * 60 * 60 * 1000); //24 horas vai somar mais 1
+  }, 24 * 60 * 60 * 1000); //24 horas 
 
   return (
     <>
@@ -467,10 +548,9 @@ function Servico() {
           <Form>
             <Row>
               <Col xs={12} md={8}>
-                <Form.Group>
+                <Form.Group >
                   <Form.Select
                     value={data}
-                    // id="data"
                     onChange={handleDataChange}
                   >
                     <option value="" selected>
@@ -492,16 +572,13 @@ function Servico() {
                 >
                   <Button
                     variant="success"
-                    // type="submit"
                     onClick={handlePesquisa}
-                    // onKeyDown={handlePesquisaKeyDown}
                   >
                     Pesquisar
                   </Button>
                   <Button
                     variant="secondary"
-                    onClick={handleLimpar}
-                    // onKeyDown={handleLimparKeyDown}
+                    onClick={handleLimpar} 
                   >
                     Limpar
                   </Button>
@@ -517,10 +594,6 @@ function Servico() {
         <Button variant="primary" onClick={() => setIsModalOpen1(true)}>
           Adicionar serviço
         </Button>
-        <Button variant="primary" onClick={atualizarDadosTodosMilitares}>
-        Atualizar contador 
-        </Button>
-
         <div className="row justify-content-center">
           <div className="col-md-6 text-center mb-4">
             <h2 className="heading-section">Lista de Serviços</h2>
@@ -563,31 +636,31 @@ function Servico() {
                           </td>
                           <td>{registro.data}</td>
                           <td>
-                            {registro.oficialId.gradId.name} -{" "}
+                            {registro.oficialId.gradId.name}{" "}
                             {registro.oficialId.name}
                           </td>
                           <td>
-                            {registro.sgtdiaId.gradId.name} -{" "}
+                            {registro.sgtdiaId.gradId.name}{" "}
                             {registro.sgtdiaId.name}
                           </td>
                           <td>
-                            {registro.cbgdId.gradId.name} -{" "}
+                            {registro.cbgdId.gradId.name}{" "}
                             {registro.cbgdId.name}
                           </td>
                           <td>
-                            {registro.motoId.gradId.name} -{" "}
+                            {registro.motoId.gradId.name}{" "}
                             {registro.motoId.name}
                           </td>
                           <td>
-                            {registro.ranchoId.gradId.name} -{" "}
+                            {registro.ranchoId.gradId.name}{" "}
                             {registro.ranchoId.name}
                           </td>
                           <td>
-                            {registro.parmcavId.gradId.name} -{" "}
+                            {registro.parmcavId.gradId.name}{" "}
                             {registro.parmcavId.name}
                           </td>
                           <td>
-                            {registro.armeiroId.gradId.name} -{" "}
+                            {registro.armeiroId.gradId.name}{" "}
                             {registro.armeiroId.name}
                           </td>
 
@@ -648,60 +721,60 @@ function Servico() {
                               </thead>
 
                               <td>
-                                {registro.auxrancho1Id.gradId.name} -{" "}
+                                {registro.auxrancho1Id.gradId.name}{" "}
                                 {registro.auxrancho1Id.name}
                                 <br />
-                                {registro.auxrancho2Id.gradId.name} -{" "}
+                                {registro.auxrancho2Id.gradId.name}{" "}
                                 {registro.auxrancho2Id.name}
                                 <br />
-                                {registro.auxrancho3Id.gradId.name} -{" "}
+                                {registro.auxrancho3Id.gradId.name}{" "}
                                 {registro.auxrancho3Id.name}
                               </td>
                               <td>
-                                {registro.frente1Id.gradId.name} -{" "}
+                                {registro.frente1Id.gradId.name}{" "}
                                 {registro.frente1Id.name}
                                 <br />
-                                {registro.frente2Id.gradId.name} -{" "}
+                                {registro.frente2Id.gradId.name}{" "}
                                 {registro.frente2Id.name}
                                 <br />
-                                {registro.frente3Id.gradId.name} -{" "}
+                                {registro.frente3Id.gradId.name}{" "}
                                 {registro.frente3Id.name}
                               </td>
                               <td>
-                                {registro.tras1Id.gradId.name} -{" "}
+                                {registro.tras1Id.gradId.name}{" "}
                                 {registro.tras1Id.name}
                                 <br />
-                                {registro.tras2Id.gradId.name} -{" "}
+                                {registro.tras2Id.gradId.name}{" "}
                                 {registro.tras2Id.name}
                                 <br />
-                                {registro.tras3Id.gradId.name} -{" "}
+                                {registro.tras3Id.gradId.name}{" "}
                                 {registro.tras3Id.name}
                               </td>
                               <td>
-                                {registro.aloj1Id.gradId.name} -{" "}
+                                {registro.aloj1Id.gradId.name}{" "}
                                 {registro.aloj1Id.name}
                                 <br />
-                                {registro.aloj1Id.gradId.name} -{" "}
+                                {registro.aloj1Id.gradId.name}{" "}
                                 {registro.aloj2Id.name}
                                 <br />
-                                {registro.aloj1Id.gradId.name} -{" "}
+                                {registro.aloj1Id.gradId.name}{" "}
                                 {registro.aloj3Id.name}
                               </td>
                               <td>
-                                {registro.garagem1Id.gradId.name} -{" "}
+                                {registro.garagem1Id.gradId.name}{" "}
                                 {registro.garagem1Id.name}
                                 <br />
-                                {registro.garagem2Id.gradId.name} -{" "}
+                                {registro.garagem2Id.gradId.name}{" "}
                                 {registro.garagem2Id.name}
                                 <br />
-                                {registro.garagem3Id.gradId.name} -{" "}
+                                {registro.garagem3Id.gradId.name}{" "}
                                 {registro.garagem3Id.name}
                               </td>
                               <td>
-                                {registro.pavsup1Id.gradId.name} -{" "}
+                                {registro.pavsup1Id.gradId.name}{" "}
                                 {registro.pavsup1Id.name}
                                 <br />
-                                {registro.pavsup2Id.gradId.name} -{" "}
+                                {registro.pavsup2Id.gradId.name}{" "}
                                 {registro.pavsup2Id.name}
                               </td>
                               <td>{registro.patrulha}</td>
