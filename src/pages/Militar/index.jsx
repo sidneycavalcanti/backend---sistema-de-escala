@@ -126,22 +126,10 @@ const Militar = () => {
     setGrad("");
   };
 
-  const handleLimparPesquisa = () => {
-    // aqui você pode limpar os resultados da pesquisa
-  };
-
   const handlePesquisaKeyDown = (event) => {
     if (event.key === "Enter") {
       event.preventDefault();
       handlePesquisa();
-    }
-  };
-
-  const handleLimparKeyDown = (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleLimpar();
-      handleLimparPesquisa();
     }
   };
 
@@ -250,8 +238,12 @@ const Militar = () => {
       grad: event.target.grad.value,
       name: event.target.name.value,
       num: event.target.num.value,
-      dtultimosv: event.target.dtultimosv.value,
+      
+      dtultimosvpre: event.target.dtultimosvpre.value,
+      dtultimosverm: event.target.dtultimosverm.value,
+
       qtddiaf: event.target.qtddiaf.value,
+      qtddiafvermelha: event.target.qtddiafvermelha.value,
     };
     try {
       // Faz a requisição PUT enviando os dados a serem atualizados no corpo da requisição
@@ -290,7 +282,7 @@ const Militar = () => {
           <Form>
             <Row>
               <Col xs={12} md={6}>
-                <Form.Group className="mb-5">
+                <Form.Group>
                   <Form.Control
                     placeholder="Nome"
                     type="text"
@@ -299,11 +291,11 @@ const Militar = () => {
                     onKeyDown={handlePesquisaKeyDown}
                   />
                 </Form.Group>
-              </Col>
+              </Col >
               <Col>
-                <Form.Group className="mb-5">
+                <Form.Group>
                   <Form.Select
-                    className="row"
+                    className=""
                     value={grad}
                     onChange={handleCategoriaChange}
                   >
@@ -318,7 +310,7 @@ const Militar = () => {
                   </Form.Select>
                 </Form.Group>
               </Col>
-              <Col>
+              <Col className="justify-content-center row">
                 <div
                   className="btn-group"
                   role="group"
@@ -326,16 +318,16 @@ const Militar = () => {
                 >
                   <Button
                     variant="success"
-                    // type="submit"
+               
                     onClick={handlePesquisa}
-                    onKeyDown={handlePesquisaKeyDown}
+                  
                   >
                     Pesquisar
                   </Button>
                   <Button
                     variant="secondary"
                     onClick={handleLimpar}
-                    onKeyDown={handleLimparKeyDown}
+                  
                   >
                     Limpar
                   </Button>
@@ -347,6 +339,7 @@ const Militar = () => {
         </div>
       </div>
       <br></br>
+      
       <div className="tabela">
         <Button variant="primary" onClick={() => setIsModalOpen1(true)}>
           Adicionar militar

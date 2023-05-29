@@ -1,26 +1,107 @@
 import React, { useEffect, useState } from "react";
-import Modal from "react-modal";
-//import './style.css';
+import Modal from "react-bootstrap/Modal";
+import Form from "react-bootstrap/Form";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import { Button, Pagination } from "react-bootstrap";
 import NavBar from "../MainPage/NavBar";
 import axios from "axios";
 
 function User() {
-  const [dadosUsuario, setDadosUsuario] = useState([]);
   const [registros, setRegistros] = useState([]);
   const [registroAtual, setRegistroAtual] = useState({});
   const [isModalOpen1, setIsModalOpen1] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [name, setName] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/users")
-      .then((response) => {
-        setDadosUsuario(response.data);
-      })
-      .catch((err) => {
+   fetchRegistros();
+  }, [currentPage]);
+
+  const fetchRegistros = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/users?page=${currentPage}&name=${name}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setRegistros(response.data.data);
+      setTotalPages(response.data.totalPages);
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        axios
+          .get(`http://localhost:5000/users?page=${totalPages}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((response) => {
+            setRegistros(response.data.data);
+            setCurrentPage(totalPages);
+          })
+          .catch((err) => {
+            console.error("Não foi possivel obter os dados do servidor:", err);
+          });
+      } else {
         console.error("Não foi possivel obter os dados do servidor:", err);
-      });
-  }, []);
+      }
+    }
+  };
+
+  const handleNomeChange = (event) => {
+    setName(event.target.value);
+  };
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+
+  const handleLimpar = () => {
+    setName("");
+  };
+  
+
+  const handlePesquisa = async (event) => {
+    const nomePesquisa = name;
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/users?name=${nomePesquisa}&page=${currentPage}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setRegistros(response.data.data);
+      setTotalPages(response.data.totalPages);
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        axios
+          .get(`http://localhost:5000/militares?page=${totalPages}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((response) => {
+            setRegistros(response.data.data);
+            setCurrentPage(totalPages);
+          })
+          .catch((err) => {
+            console.error("Não foi possivel obter os dados do servidor:", err);
+          });
+      } else {
+        console.error("Não foi possivel obter os dados do servidor:", err);
+      }
+    }
+  };
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -28,49 +109,53 @@ function User() {
       name: event.target.name.value,
       cat: event.target.cat.value,
       password: event.target.password.value,
-      passwordConfirmation: event.target.password.value
-      
+      passwordConfirmation: event.target.confirme.value,
     };
-    console.log(novoRegistro)
-        try{
-            axios.post("http://localhost:5000/users", novoRegistro, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            window.alert("Cadastro efetuado com sucesso!");
-            setRegistros([...registros, novoRegistro]);
-            event.target.reset();
-            window.location.reload(true);
-          } catch (error) {
-            console.error("Erro ao criar registro:", error);
-          }
-        };
-   
-  
+    console.log(novoRegistro);
+    try {
+      axios.post("http://localhost:5000/users", novoRegistro, {
+        headers: {
+         Authorization: `Bearer ${token}`,
+        },
+      });
+      window.alert("Cadastro efetuado com sucesso!");
+      setRegistros([...registros, novoRegistro]);
+      event.target.reset();
+      window.location.reload(true);
+    } catch (error) {
+      console.error("Erro ao criar registro:", error);
+    }
+  }
 
   function handleDelete(id) {
     const confirmDelete = window.confirm(
-        "Tem certeza que deseja excluir esse usuario?"
-      );
-      if (confirmDelete) {
-        axios.delete(`http://localhost:5000/users/${id}`);
-        const novosRegistros = registros.filter((registro) => registro.id !== id);
-        setRegistros(novosRegistros);
-        // window.location.reload(true);
-      }
+      "Tem certeza que deseja excluir esse usuario?"
+    );
+    if (confirmDelete) {
+      axios.delete(`http://localhost:5000/users/${id}`,{
+        headers:{
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      const novosRegistros = registros.filter((registro) => registro.id !== id);
+      setRegistros(novosRegistros);
     }
-  
-    const buscarRegistro = async (id) => {
-        const response = await axios.get(`http://localhost:5000/users/${id}`);
-        setRegistroAtual(response.data);
-        setIsModalOpen2(true);
-    }
+  }
 
+  const buscarRegistro = async (id) => {
+    const response = await axios.get(`http://localhost:5000/users/${id}`,{
+      headers: {
+        Authorization: `Baerer ${token}`,
+      }
+    });
+    setRegistroAtual(response.data);
+    setIsModalOpen2(true);
+  };
 
   const handleEdit = async () => {
+    
 
-  }
+  };
 
   function handleModalClose() {
     setIsModalOpen1(false);
@@ -79,176 +164,338 @@ function User() {
   return (
     <>
       <NavBar />
-      <div className="container">
-        <div className="cadastro">
-          <button className="adicionar" onClick={() => setIsModalOpen1(true)}>
-            Adicionar usuario
-          </button>
-          <h3>Lista de Militares</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                {/* <th>Login</th> */}
-                <th>Categoria</th>
-                <th>Ação</th>
-              </tr>
-            </thead>
-            <tbody>
-              {dadosUsuario.map((registro) => (
-                <tr key={registro.id}>
-                  <td>{registro.name}</td>
-                  <td>{registro.cat}</td>
-                  <td>
-                    <button
-                      className="button"
-                      onClick={() => buscarRegistro(registro.id)}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className="buttonExcluir"
-                      onClick={() => handleDelete(registro.id)}
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <Modal
-            className="modal"
-            name="modal1"
-            isOpen={isModalOpen1}
-            onRequestClose={handleModalClose}
-          >
-            <form className="formMainPage" onSubmit={handleSubmit}>
-              <h2>Cadastrar militar</h2>
-              <div>
-                <div className="gridMainPage3">
-                  <div>
-                    <label className="labelMainPage" htmlFor="name">
-                      Login de acesso:
-                    </label>
-                    <input
-                      className="inputMilitarPage"
-                      type="text"
-                      id="name"
-                      name="name"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="labelMainPage" htmlFor="password">
-                      Senha
-                    </label>
-                    <input
-                      className="inputMilitarPage"
-                      type="password"
-                      id="password"
-                      name="password"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="labelMainPage" htmlFor="name">
-                      Categoria:
-                    </label>
-                    <select
-                      className="inputMilitarPage"
-                      type="text"
-                      id="cat"
-                      name="cat"
-                      required
-                    >
-                      <option value="" disabled selected>
-                        Selecione...
-                      </option>
-                      <option>Comum</option>
-                      <option>Coordenador</option>
-                      <option>Administrador</option>
-                    </select>
-                  </div>
+      <br></br>
+      <div className="tabela">
+        <div className="row justify-content-center">
+          <div className="col-md-6 text-center mb-4">
+            <h2 className="heading-section">Pesquisar Usuários</h2>
+          </div>
+          <Form>
+            <Row>
+              <Col xs={12} md={8}>
+                <Form.Group>
+                  <Form.Control
+                    placeholder="Nome"
+                    type="text"
+                    value={name}
+                    onChange={handleNomeChange}
+                  />
+                </Form.Group>
+              </Col>
+              <Col  className="justify-content-center row">
+                <div
+                  className="btn-group "
+                  role="group"
+                  aria-label="Basic example"
+                >
+                  <Button
+                    variant="success"
+                    onClick={handlePesquisa}
+                  >
+                    Pesquisar
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={handleLimpar}
+                  >
+                    Limpar
+                  </Button>
                 </div>
-              </div>
-
-              <button className="buttonCad" type="submit">
-                Cadastrar
-              </button>
-              <button className="buttonExit" onClick={handleModalClose}>
-                Fechar
-              </button>
-            </form>
-          </Modal>
-          <Modal
-            className="modal"
-            name="modal2"
-            isOpen={isModalOpen2}
-            onRequestClose={handleModalClose}
-          >
-            <form className="formMainPage" onSubmit={handleSubmit}>
-              <h2>Atualizar militar</h2>
-              <div>
-                <div className="gridMainPage3">
-                  <div>
-                    <label className="labelMainPage" htmlFor="name">
-                      Login de acesso:
-                    </label>
-                    <input
-                      className="inputMilitarPage"
-                      type="text"
-                      id="name"
-                      name="name"
-                      defaultValue={registroAtual.name}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="labelMainPage" htmlFor="senha">
-                      Senha
-                    </label>
-                    <input
-                      className="inputMilitarPage"
-                      type="text"
-                      id="password"
-                      name="password"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="labelMainPage" htmlFor="name">
-                      Categoria:
-                    </label>
-                    <select
-                      className="inputMilitarPage"
-                      type="text"
-                      id="cat"
-                      name="cat"
-                      defaultValue={registroAtual.cat}
-                      required
-                    >
-                      <option value="" disabled selected>
-                        Selecione...
-                      </option>
-                      <option>Comum</option>
-                      <option>Coordenador</option>
-                      <option>Administrador</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <button className="buttonCad" type="submit">
-                {registroAtual.id ? "Atualizar" : "Cadastrar"}
-              </button>
-              <button className="buttonExit" onClick={handleModalClose}>
-                Fechar
-              </button>
-            </form>
-          </Modal>
+              </Col>
+            </Row>
+            <Col></Col>
+          </Form>
         </div>
       </div>
+      <br></br>
+
+      <div className="tabela">
+        <Button variant="primary" onClick={() => setIsModalOpen1(true)}>
+          Adicionar usuario
+        </Button>
+        <div className="row justify-content-center">
+          <div className="col-md-6 text-center mb-4">
+            <h2 className="heading-section">Lista de Militares</h2>
+          </div>
+          <div className="row">
+            <div className="col-md-12">
+              <div className="table-container table-wrap">
+                <table
+                  className="table myaccordion table-hover text-center nowrap"
+                  id="accordion"
+                  responsive="lg"
+                >
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      {/* <th>Login</th> */}
+                      <th>Categoria</th>
+                      <th>Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {registros.map((registro) => (
+                      <tr key={registro.id}>
+                        <td>{registro.name}</td>
+                        <td
+                          className={registro.cat ? "Administrador" : "Comum"}
+                        >{registro.cat  ? "Administrador" : "Comum"}
+                        </td>
+                        <td>
+                        <div
+                              className="btn-group"
+                              role="group"
+                              aria-label="Basic example"
+                            >
+                          <Button
+                          variant="success"
+                            onClick={() => buscarRegistro(registro.id)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            variant="danger"
+                            onClick={() => handleDelete(registro.id)}
+                          >
+                            Excluir
+                          </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {/* modal de criar */}  
+                <Modal
+                  size="lg"
+                  aria-labelledby="contained-modal-title-vcenter"
+                  centered
+                  show={isModalOpen1}
+                  onHide={handleModalClose}
+                  className="modal"
+                >
+                  <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                      Cadastrar usuário
+                    </Modal.Title>
+                  </Modal.Header>
+                  <Form onSubmit={handleSubmit}>
+                    <Modal.Body className="show-grid">
+                      <Row>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Nome</Form.Label>
+                            <Form.Control
+                              type="text"
+                              id="name"
+                              name="name"
+                              required
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Tipo de usuário</Form.Label>
+                            <Form.Select
+                              type="number"
+                              id="cat"
+                              name="cat"
+                              required
+                            
+                            >
+                               <option value="" disabled selected>
+                                Selecione...
+                              </option>
+                              <option value={false}>
+                                 Comum
+                              </option>
+                              <option value={true}>
+                                Administrador
+                              </option>
+                            </Form.Select>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >  
+                          <Form.Label>Senha</Form.Label>
+                          <Form.Control
+                            type="password"
+                            id="password"
+                            name="password"
+                            required
+                          />
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Confirmar senha</Form.Label>
+                            <Form.Control
+                              type="password"
+                              id="confirme"
+                              name="confirme"
+                              required
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button variant="success" type="submit">
+                        Cadastrar
+                      </Button>
+                      <Button variant="danger" onClick={handleModalClose}>
+                        Fechar
+                      </Button>
+                    </Modal.Footer>
+                  </Form>
+                </Modal>
+    
+                {/* modal de editar  */}
+                <Modal
+                  size="lg"
+                  aria-labelledby="contained-modal-title-vcenter"
+                  centered
+                  show={isModalOpen2}
+                  onHide={handleModalClose}
+                  className="modal"
+                >
+                  <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                      Atualizar usuário
+                    </Modal.Title>
+                  </Modal.Header>
+                  <Form onSubmit={handleSubmit}>
+                    <Modal.Body className="show-grid">
+                      <Row>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Nome</Form.Label>
+                            <Form.Control
+                              defaultValue={registroAtual.name}
+                              type="text"
+                              id="name"
+                              name="name"
+                              required
+                            />
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Tipo de usuário</Form.Label>
+                            <Form.Select
+                              type="number"
+                              id="cat"
+                              name="cat"
+                              required
+                              defaultValue={registroAtual.cat}
+                            >
+                              <option value="" disabled selected>
+                                Selecione...
+                              </option>
+                              <option value={false}>
+                                 Comum
+                              </option>
+                              <option value={true}>
+                                Administrador
+                              </option>
+                            </Form.Select>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >  
+                          <Form.Label>Senha anterior</Form.Label>
+                          <Form.Control
+                            type="password"
+                            id="oldpassword"
+                            name="oldpassword"
+                          />
+                          </Form.Group>
+                        </Col>
+                        <Col>
+                          <Form.Group
+                            className="mb-5"
+                            controlId="exampleForm.ControlInput1"
+                          >
+                            <Form.Label>Nova senha</Form.Label>
+                            <Form.Control
+                              type="password"
+                              id="password"
+                              name="password"
+                            />
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                    </Modal.Body>
+                    <Modal.Footer>
+                      <Button variant="success" type="submit">
+                        Cadastrar
+                      </Button>
+                      <Button variant="danger" onClick={handleModalClose}>
+                        Fechar
+                      </Button>
+                    </Modal.Footer>
+                  </Form>
+                </Modal>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br></br>
+      <Pagination size="lg" className="justify-content-center">
+        <Pagination.First
+          onClick={() => handlePageChange(1)}
+          disabled={currentPage === 1}
+        />
+        <Pagination.Prev
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        />
+        {[...Array(totalPages).keys()].map((page) => (
+          <Pagination.Item
+            key={page + 1}
+            active={currentPage === page + 1}
+            onClick={() => handlePageChange(page + 1)}
+          >
+            {page + 1}
+          </Pagination.Item>
+        ))}
+        <Pagination.Next
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        />
+        <Pagination.Last
+          onClick={() => handlePageChange(totalPages)}
+          disabled={currentPage === totalPages}
+        />
+      </Pagination>
+      <h3 className="text-center">Pagina</h3>
     </>
   );
 }
