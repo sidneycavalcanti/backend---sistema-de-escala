@@ -286,7 +286,6 @@ function User() {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
                           >
                             <Form.Label>Nome</Form.Label>
                             <Form.Control
@@ -300,7 +299,6 @@ function User() {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
                           >
                             <Form.Label>Tipo de usuário</Form.Label>
                             <Form.Select
@@ -310,7 +308,7 @@ function User() {
                               required
                             
                             >
-                               <option value="" disabled selected>
+                               <option value="" disabled>
                                 Selecione...
                               </option>
                               <option value={false}>
@@ -326,8 +324,7 @@ function User() {
                       <Row>
                         <Col>
                           <Form.Group
-                            className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                            className="mb-5"         
                           >  
                           <Form.Label>Senha</Form.Label>
                           <Form.Control
@@ -341,7 +338,6 @@ function User() {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
                           >
                             <Form.Label>Confirmar senha</Form.Label>
                             <Form.Control
@@ -384,8 +380,7 @@ function User() {
                       <Row>
                         <Col>
                           <Form.Group
-                            className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                            className="mb-5"                 
                           >
                             <Form.Label>Nome</Form.Label>
                             <Form.Control
@@ -399,8 +394,7 @@ function User() {
                         </Col>
                         <Col>
                           <Form.Group
-                            className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                            className="mb-5"  
                           >
                             <Form.Label>Tipo de usuário</Form.Label>
                             <Form.Select
@@ -410,7 +404,7 @@ function User() {
                               required
                               defaultValue={registroAtual.cat}
                             >
-                              <option value="" disabled selected>
+                              <option value="" disabled>
                                 Selecione...
                               </option>
                               <option value={false}>
@@ -427,7 +421,6 @@ function User() {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
                           >  
                           <Form.Label>Senha anterior</Form.Label>
                           <Form.Control
@@ -440,7 +433,6 @@ function User() {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
                           >
                             <Form.Label>Nova senha</Form.Label>
                             <Form.Control
