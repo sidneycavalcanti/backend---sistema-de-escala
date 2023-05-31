@@ -135,8 +135,7 @@ const Militar = () => {
 
   //Cadastrar Militar no banco de dados
   const handleSubmit = async (event) => {
-    event.preventDefault();
-
+   
     const idt = parseInt(event.target.idt.value);
 
     const response = await axios.get("http://localhost:5000/militarestotal", {
@@ -145,16 +144,13 @@ const Militar = () => {
       },
     });
 
-
     const registros = response.data;
 
-    console.log(registros)
 
     const registroExistente = registros.find(
       (registro) => registro.idt === idt
     );
 
-    console.log(registroExistente)
 
     if (registroExistente) {
       const idtCadstrada = registroExistente.idt;
@@ -178,18 +174,18 @@ const Militar = () => {
     };
 
 
-    // try {
-    //   await axios.post("http://localhost:5000/militares", novoRegistro, {
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //   });
-    //   setRegistros([...registros, novoRegistro]);
-    //   event.target.reset();
-    // } catch (error) {
-    //   console.error("Erro ao criar registro:", error);
-    // }
+    try {
+      await axios.post("http://localhost:5000/militares", novoRegistro, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setRegistros([...registros, novoRegistro]);
+      event.target.reset();
+    } catch (error) {
+      console.error("Erro ao criar registro:", error);
+    }
    
   };
 
@@ -256,10 +252,8 @@ const Militar = () => {
   };
 
   const confirmaEdicao = async (event) => {
-
-   
-
-    // // Buscar os dados passando id
+    event.preventDefault();
+    // Buscar os dados passando id
     const editRegistro = {
       idt: event.target.idt.value,
       grad: event.target.grad.value,
@@ -273,8 +267,9 @@ const Militar = () => {
       qtddiafvermelha: event.target.qtddiafvermelha.value,
     };
     try {
-      // Faz a requisição PUT enviando os dados a serem atualizados no corpo da requisição
-      await axios.put(
+      event.preventDefault(); // Impede o comportamento padrão do evento de envio do formulário
+    
+      const atualizar = await axios.put(
         `http://localhost:5000/militares/${registroAtual.id}`,
         editRegistro,
         {
@@ -283,10 +278,15 @@ const Militar = () => {
           },
         }
       );
+    
+      if (atualizar.status >= 200 && atualizar.status < 300) {
+        window.alert("Atualização efetuada com sucesso!");
+        window.location.reload(true); // Recarrega a página completamente
+      }
+    
       setRegistroAtual({ ...registroAtual, editRegistro });
-      window.alert("atualização efetuado com sucesso!");
     } catch (error) {
-      window.alert(error);
+      window.alert(`Erro ao editar registro: ${error}`);
       console.error("Erro ao editar registro:", error);
     }
   };

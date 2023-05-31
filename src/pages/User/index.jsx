@@ -154,18 +154,20 @@ function User() {
   };
 
   const confirmaEdicao = async (event) => {
+    event.preventDefault();
+
     // // Buscar os dados passando id
     const editRegistro = {
       name: event.target.name.value,
       cat: event.target.cat.value,
       oldPassword: event.target.oldpassword.value,
       password: event.target.password.value,
+      passwordConfirmation: event.target.password.value,
     };
     try {
 
-      console.log(editRegistro)
       // Faz a requisição PUT enviando os dados a serem atualizados no corpo da requisição
-      await axios.put(
+      const atualizar = await axios.put(
         `http://localhost:5000/users/${registroAtual.id}`,
         editRegistro,
         {
@@ -174,10 +176,15 @@ function User() {
           },
         }
       );
+      
+
+      if (atualizar.status >= 200 && atualizar.status < 300) {
+        window.alert("Atualização efetuada com sucesso!");
+        window.location.reload(true); // Recarrega a página completamente
+      }
       setRegistroAtual({ ...registroAtual, editRegistro });
-      window.alert("atualização efetuado com sucesso!");
     } catch (error) {
-      window.alert(error);
+      window.alert("Senha anterior incorreta!");
       console.error("Erro ao editar registro:", error);
     }
   };
@@ -240,7 +247,7 @@ function User() {
         </Button>
         <div className="row justify-content-center">
           <div className="col-md-6 text-center mb-4">
-            <h2 className="heading-section">Lista de Militares</h2>
+            <h2 className="heading-section">Lista de Usuários</h2>
           </div>
           <div className="row">
             <div className="col-md-12">
