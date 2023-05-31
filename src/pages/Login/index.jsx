@@ -113,9 +113,9 @@ function Login() {
                 </div>
 
                 <div className="checkbox mb-3">
-                  <label>
+                  {/* <label>
                     <input type="checkbox" value="remember-me" /> Lembrar-me
-                  </label>
+                  </label> */}
                 </div>
                 <button className="w-100 btn btn-lg btn-primary" type="submit">
                   Entrar

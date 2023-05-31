@@ -135,6 +135,33 @@ const Militar = () => {
 
   //Cadastrar Militar no banco de dados
   const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const idt = parseInt(event.target.idt.value);
+
+    const response = await axios.get("http://localhost:5000/militarestotal", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+
+    const registros = response.data;
+
+    console.log(registros)
+
+    const registroExistente = registros.find(
+      (registro) => registro.idt === idt
+    );
+
+    console.log(registroExistente)
+
+    if (registroExistente) {
+      const idtCadstrada = registroExistente.idt;
+      alert(`Já existe um militar com essa identidade. (${idtCadstrada})`);
+      return;
+    }
+
     const novoRegistro = {
 
       idt: event.target.idt.value,
@@ -150,22 +177,20 @@ const Militar = () => {
 
     };
 
-    console.log(novoRegistro);
 
-    try {
-      await axios.post("http://localhost:5000/militares", novoRegistro, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setRegistros([...registros, novoRegistro]);
-      event.target.reset();
-    } catch (error) {
-      console.error("Erro ao criar registro:", error);
-    }
-    window.alert("Cadastro efetuado com sucesso!");
-    // window.location.reload(true)
+    // try {
+    //   await axios.post("http://localhost:5000/militares", novoRegistro, {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   });
+    //   setRegistros([...registros, novoRegistro]);
+    //   event.target.reset();
+    // } catch (error) {
+    //   console.error("Erro ao criar registro:", error);
+    // }
+   
   };
 
   //Deletetar Militar do banco de dados
@@ -187,7 +212,6 @@ const Militar = () => {
           setRegistros(novosRegistros);
         });
     }
-    // window.location.reload(true);
   };
 
   const atualizarSituacao = async (id) => {
@@ -232,6 +256,9 @@ const Militar = () => {
   };
 
   const confirmaEdicao = async (event) => {
+
+   
+
     // // Buscar os dados passando id
     const editRegistro = {
       idt: event.target.idt.value,
@@ -299,7 +326,7 @@ const Militar = () => {
                     value={grad}
                     onChange={handleCategoriaChange}
                   >
-                    <option value="" selected>
+                      <option value="" selected disabled>
                       Selecione...
                     </option>
                     {dadosGrad.map((item) => (
@@ -443,7 +470,7 @@ const Militar = () => {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                           
                           >
                             <Form.Label>Numero do Militar</Form.Label>
                             <Form.Control
@@ -457,7 +484,7 @@ const Militar = () => {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                
                           >
                             <Form.Label>Identidade Militar</Form.Label>
                             <Form.Control
@@ -473,7 +500,7 @@ const Militar = () => {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                            
                           >
                             <Form.Label>Graduação</Form.Label>
                             <Form.Select
@@ -482,7 +509,7 @@ const Militar = () => {
                               name="grad"
                               required
                             >
-                              <option value="" selected>
+                              <option disabled selected >
                                 Selecione...
                               </option>
                               {dadosGrad.map((item) => (
@@ -496,7 +523,7 @@ const Militar = () => {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                          
                           >
                             <Form.Label>Nome de guerra</Form.Label>
                             <Form.Control
@@ -512,7 +539,7 @@ const Militar = () => {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                       
                           >
                             <Form.Label>Data do ultimo serviço preta</Form.Label>
                             <Form.Control
@@ -526,7 +553,7 @@ const Militar = () => {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                           
                           >
                             <Form.Label>Dias folgando preta</Form.Label>
                             <Form.Control
@@ -542,7 +569,7 @@ const Militar = () => {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                         
                           >
                             <Form.Label>Data do ultimo serviço vermelha</Form.Label>
                             <Form.Control
@@ -556,7 +583,7 @@ const Militar = () => {
                         <Col>
                           <Form.Group
                             className="mb-5"
-                            controlId="exampleForm.ControlInput1"
+                           
                           >
                             <Form.Label>Dias folgando vermelha</Form.Label>
                             <Form.Control

@@ -97,7 +97,7 @@ function Servico() {
       ...prevState,
       [index]: !prevState[index],
     }));
-    setButtonText(prevText => prevText === "Abrir" ? "Fechar" : "Abrir");
+    // setButtonText((prevText) => (prevText === "Abrir" ? "Fechar" : "Abrir"));
   };
 
   const handlePesquisa = async (event) => {
@@ -146,6 +146,7 @@ function Servico() {
       });
 
       const registros = response.data.data;
+      
 
       const registroExistente = registros.find(
         (registro) => registro.data === novaData
@@ -200,33 +201,33 @@ function Servico() {
       };
 
       const idtMilitar = [
-       event.target.oficial.value,
+        event.target.oficial.value,
         event.target.sgt.value,
-       event.target.cb.value,
-         event.target.moto.value,
+        event.target.cb.value,
+        event.target.moto.value,
         event.target.permrancho.value,
-         event.target.baia.value,
+        event.target.baia.value,
 
-         event.target.auxrancho1.value,
-         event.target.auxrancho2.value,
-         event.target.auxrancho3.value,
+        event.target.auxrancho1.value,
+        event.target.auxrancho2.value,
+        event.target.auxrancho3.value,
 
-         event.target.frente1.value,
-         event.target.frente2.value,
-         event.target.frente3.value,
+        event.target.frente1.value,
+        event.target.frente2.value,
+        event.target.frente3.value,
 
-         event.target.tras1.value,
-       event.target.tras2.value,
-       event.target.tras3.value,
+        event.target.tras1.value,
+        event.target.tras2.value,
+        event.target.tras3.value,
 
         event.target.alojamento1.value,
         event.target.alojamento2.value,
-       event.target.alojamento3.value,
+        event.target.alojamento3.value,
 
-         event.target.garagem1.value,
+        event.target.garagem1.value,
         event.target.garagem2.value,
-         event.target.garagem3.value,
-      ]
+        event.target.garagem3.value,
+      ];
 
       await axios.post("http://localhost:5000/servicos", novoRegistro, {
         headers: {
@@ -235,42 +236,40 @@ function Servico() {
         },
       });
 
-      if(data === today){
-        if(escala === true){
-          for(let i=0; i< idtMilitar.length; i++ ){
+      if (data === today) {
+        if (escala === true) {
+          for (let i = 0; i < idtMilitar.length; i++) {
             await axios.put(
-                        `http://localhost:5000/militarestotal/${idtMilitar[i]}`,
-                        {
-                          qtddiaf: 0,
-                          dtultimosvpre: data,
-                        },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
-                        }
-                      );
-    
+              `http://localhost:5000/militarestotal/${idtMilitar[i]}`,
+              {
+                qtddiaf: 0,
+                dtultimosvpre: data,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
           }
-        }else{
-          for(let i=0; i< idtMilitar.length; i++ ){
+        } else {
+          for (let i = 0; i < idtMilitar.length; i++) {
             await axios.put(
-                        `http://localhost:5000/militarestotal/${idtMilitar[i]}`,
-                        {
-                          qtddiafvermelha: 0,
-                          dtultimosverm: data,
-                        },
-                        {
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
-                        }
-                      );
-    
+              `http://localhost:5000/militarestotal/${idtMilitar[i]}`,
+              {
+                qtddiafvermelha: 0,
+                dtultimosverm: data,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+          }
         }
       }
-    }
-    
+
       window.alert("Cadastro efetuado com sucesso!");
       setRegistros([...registros, registroAtual]);
       event.target.reset();
@@ -429,15 +428,13 @@ function Servico() {
           formatISO(today, { representation: "date" })
         ) {
           if (servicos.escala === true) {
-
             for (let j = 0; j < dadosMilitar.length; j++) {
-             
               const endpointMilitar = `http://localhost:5000/militarestotal/${dadosMilitar[j].id}`;
               const { data: militar } = await axios.get(endpointMilitar, {
-                headers:{
+                headers: {
                   Authorization: `Bearer ${token}`,
-                }
-              })
+                },
+              });
               // console.log(militar.qtddiaf)
               await axios.put(
                 endpointMilitar,
@@ -447,7 +444,7 @@ function Servico() {
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
-                  }
+                  },
                 }
               );
             }
@@ -459,7 +456,7 @@ function Servico() {
                   Authorization: `Bearer ${token}`,
                 },
               });
-              console.log(militar)
+              console.log(militar);
 
               await axios.put(
                 endpointMilitar,
@@ -476,13 +473,12 @@ function Servico() {
             }
           } else if (servicos.escala === false) {
             for (let j = 0; j < dadosMilitar.length; j++) {
-             
               const endpointMilitar = `http://localhost:5000/militarestotal/${dadosMilitar[j].id}`;
               const { data: militar } = await axios.get(endpointMilitar, {
-                headers:{
+                headers: {
                   Authorization: `Bearer ${token}`,
-                }
-              })
+                },
+              });
               // console.log(militar.qtddiaf)
               await axios.put(
                 endpointMilitar,
@@ -492,7 +488,7 @@ function Servico() {
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
-                  }
+                  },
                 }
               );
             }
@@ -504,7 +500,7 @@ function Servico() {
                   Authorization: `Bearer ${token}`,
                 },
               });
-              console.log(militar)
+              console.log(militar);
 
               await axios.put(
                 endpointMilitar,
@@ -534,7 +530,7 @@ function Servico() {
 
   setInterval(() => {
     atualizarDadosTodosMilitares();
-  }, 24 * 60 * 60 * 1000); //24 horas 
+  }, 24 * 60 * 60 * 1000); //24 horas
 
   return (
     <>
@@ -548,14 +544,9 @@ function Servico() {
           <Form>
             <Row>
               <Col xs={12} md={8}>
-                <Form.Group >
-                  <Form.Select
-                    value={data}
-                    onChange={handleDataChange}
-                  >
-                    <option value="" selected>
-                      Selecione...
-                    </option>
+                <Form.Group>
+                  <Form.Select value={data} onChange={handleDataChange}>
+                    <option>Selecione...</option>
                     {registros.map((item) => (
                       <option value={item.id} key={item.id}>
                         {item.data}
@@ -570,16 +561,10 @@ function Servico() {
                   role="group"
                   aria-label="Basic example"
                 >
-                  <Button
-                    variant="success"
-                    onClick={handlePesquisa}
-                  >
+                  <Button variant="success" onClick={handlePesquisa}>
                     Pesquisar
                   </Button>
-                  <Button
-                    variant="secondary"
-                    onClick={handleLimpar} 
-                  >
+                  <Button variant="secondary" onClick={handleLimpar}>
                     Limpar
                   </Button>
                 </div>
@@ -600,34 +585,36 @@ function Servico() {
           </div>
         </div>
         <div className="row">
-          <div className="col-md-13">
+          <div className="col-md-12">
             <div className="table-container table-wrap">
-              <table
-                className="table myaccordion table-hover text-center nowrap"
-                id="accordion"
-                responsive="lg"
-              >
-                {registros && registros.length > 0 ? (
-                  registros.map((registro) => (
-                    <>
-                      <thead>
+              {registros && registros.length > 0 ? (
+                registros.map((registro) => (
+                  <table
+                    className="table myaccordion table-hover text-center nowrap"
+                    id="accordion"
+                    responsive="lg"
+                    key={registro.id} // Moved the key to the table element
+                  >
+                    <thead>
+                      <tr>
+                        <th>BI</th>
+                        <th>Escala</th>
+                        <th>Data</th>
+                        <th>Oficial</th>
+                        <th>Sgt de Dia</th>
+                        <th>Cabo da guarda</th>
+                        <th>Motorista</th>
+                        <th>Perm ao Rancho</th>
+                        <th>Perm á Cavalariça</th>
+                        <th>Armaria</th>
+                        <th>Mostrar escala</th>
+                        <th>Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Wrapping the table row with React.Fragment */}
+                      <React.Fragment key={registro.id}>
                         <tr>
-                          <th>BI</th>
-                          <th>Escala</th>
-                          <th>Data</th>
-                          <th>Oficial</th>
-                          <th>Sgt de Dia</th>
-                          <th>Cabo da guarda</th>
-                          <th>Motorista</th>
-                          <th>Perm ao Rancho</th>
-                          <th>Perm á Cavalariça</th>
-                          <th>Armaria</th>
-                          <th>Mostrar escala</th>
-                          <th>Ação</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr key={registro.id}>
                           <td>{registro.bi}</td>
                           <td
                             className={registro.escala ? "preta" : "vermelha"}
@@ -644,12 +631,10 @@ function Servico() {
                             {registro.sgtdiaId.name}
                           </td>
                           <td>
-                            {registro.cbgdId.gradId.name}{" "}
-                            {registro.cbgdId.name}
+                            {registro.cbgdId.gradId.name} {registro.cbgdId.name}
                           </td>
                           <td>
-                            {registro.motoId.gradId.name}{" "}
-                            {registro.motoId.name}
+                            {registro.motoId.gradId.name} {registro.motoId.name}
                           </td>
                           <td>
                             {registro.ranchoId.gradId.name}{" "}
@@ -663,7 +648,6 @@ function Servico() {
                             {registro.armeiroId.gradId.name}{" "}
                             {registro.armeiroId.name}
                           </td>
-
                           <td>
                             <Button
                               id={`mostrar-${registro.id}`}
@@ -705,95 +689,104 @@ function Servico() {
                         <Collapse in={open[registro.id]}>
                           <tr>
                             <td colSpan="12">
-                              <thead>
-                                <tr>
-                                  <th>Aux Perm ao Rancho</th>
-                                  <th>Gd ao Pav Principal</th>
-                                  <th>Reforço ao Pav Principal</th>
-                                  <th>Plantão do Alojamento</th>
-                                  <th>Plantão ao Posto de Combustivel</th>
-                                  <th>Manutenção ao Pav Superior</th>
-                                  <th>Patrulha</th>
-                                  <th>2ª parte</th>
-                                  <th>3ª parte</th>
-                                  <th>4ª parte</th>
-                                </tr>
-                              </thead>
-
-                              <td>
-                                {registro.auxrancho1Id.gradId.name}{" "}
-                                {registro.auxrancho1Id.name}
-                                <br />
-                                {registro.auxrancho2Id.gradId.name}{" "}
-                                {registro.auxrancho2Id.name}
-                                <br />
-                                {registro.auxrancho3Id.gradId.name}{" "}
-                                {registro.auxrancho3Id.name}
-                              </td>
-                              <td>
-                                {registro.frente1Id.gradId.name}{" "}
-                                {registro.frente1Id.name}
-                                <br />
-                                {registro.frente2Id.gradId.name}{" "}
-                                {registro.frente2Id.name}
-                                <br />
-                                {registro.frente3Id.gradId.name}{" "}
-                                {registro.frente3Id.name}
-                              </td>
-                              <td>
-                                {registro.tras1Id.gradId.name}{" "}
-                                {registro.tras1Id.name}
-                                <br />
-                                {registro.tras2Id.gradId.name}{" "}
-                                {registro.tras2Id.name}
-                                <br />
-                                {registro.tras3Id.gradId.name}{" "}
-                                {registro.tras3Id.name}
-                              </td>
-                              <td>
-                                {registro.aloj1Id.gradId.name}{" "}
-                                {registro.aloj1Id.name}
-                                <br />
-                                {registro.aloj1Id.gradId.name}{" "}
-                                {registro.aloj2Id.name}
-                                <br />
-                                {registro.aloj1Id.gradId.name}{" "}
-                                {registro.aloj3Id.name}
-                              </td>
-                              <td>
-                                {registro.garagem1Id.gradId.name}{" "}
-                                {registro.garagem1Id.name}
-                                <br />
-                                {registro.garagem2Id.gradId.name}{" "}
-                                {registro.garagem2Id.name}
-                                <br />
-                                {registro.garagem3Id.gradId.name}{" "}
-                                {registro.garagem3Id.name}
-                              </td>
-                              <td>
-                                {registro.pavsup1Id.gradId.name}{" "}
-                                {registro.pavsup1Id.name}
-                                <br />
-                                {registro.pavsup2Id.gradId.name}{" "}
-                                {registro.pavsup2Id.name}
-                              </td>
-                              <td>{registro.patrulha}</td>
-                              <td>{registro.instrucao}</td>
-                              <td>{registro.geraladm}</td>
-                              <td>{registro.jusdis}</td>
+                              <table>
+                                <thead>
+                                  <tr>
+                                    <th>Aux Perm ao Rancho</th>
+                                    <th>Gd ao Pav Principal</th>
+                                    <th>Reforço ao Pav Principal</th>
+                                    <th>Plantão do Alojamento</th>
+                                    <th>Plantão ao Posto de Combustivel</th>
+                                    <th>Manutenção ao Pav Superior</th>
+                                    <th>Patrulha</th>
+                                    <th>2ª parte</th>
+                                    <th>3ª parte</th>
+                                    <th>4ª parte</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td>
+                                      {registro.auxrancho1Id.gradId.name}{" "}
+                                      {registro.auxrancho1Id.name}
+                                      <br />
+                                      {registro.auxrancho2Id.gradId.name}{" "}
+                                      {registro.auxrancho2Id.name}
+                                      <br />
+                                      {registro.auxrancho3Id.gradId.name}{" "}
+                                      {registro.auxrancho3Id.name}
+                                    </td>
+                                    <td>
+                                      {registro.frente1Id.gradId.name}{" "}
+                                      {registro.frente1Id.name}
+                                      <br />
+                                      {registro.frente2Id.gradId.name}{" "}
+                                      {registro.frente2Id.name}
+                                      <br />
+                                      {registro.frente3Id.gradId.name}{" "}
+                                      {registro.frente3Id.name}
+                                    </td>
+                                    <td>
+                                      {registro.tras1Id.gradId.name}{" "}
+                                      {registro.tras1Id.name}
+                                      <br />
+                                      {registro.tras2Id.gradId.name}{" "}
+                                      {registro.tras2Id.name}
+                                      <br />
+                                      {registro.tras3Id.gradId.name}{" "}
+                                      {registro.tras3Id.name}
+                                    </td>
+                                    <td>
+                                      {registro.aloj1Id.gradId.name}{" "}
+                                      {registro.aloj1Id.name}
+                                      <br />
+                                      {registro.aloj1Id.gradId.name}{" "}
+                                      {registro.aloj2Id.name}
+                                      <br />
+                                      {registro.aloj1Id.gradId.name}{" "}
+                                      {registro.aloj3Id.name}
+                                    </td>
+                                    <td>
+                                      {registro.garagem1Id.gradId.name}{" "}
+                                      {registro.garagem1Id.name}
+                                      <br />
+                                      {registro.garagem2Id.gradId.name}{" "}
+                                      {registro.garagem2Id.name}
+                                      <br />
+                                      {registro.garagem3Id.gradId.name}{" "}
+                                      {registro.garagem3Id.name}
+                                    </td>
+                                    <td>
+                                      {registro.pavsup1Id.gradId.name}{" "}
+                                      {registro.pavsup1Id.name}
+                                      <br />
+                                      {registro.pavsup2Id.gradId.name}{" "}
+                                      {registro.pavsup2Id.name}
+                                    </td>
+                                    <td>{registro.patrulha}</td>
+                                    <td>{registro.instrucao}</td>
+                                    <td>{registro.geraladm}</td>
+                                    <td>{registro.jusdis}</td>
+                                  </tr>
+                                </tbody>
+                              </table>
                             </td>
                           </tr>
                         </Collapse>
-                      </tbody>
-                    </>
-                  ))
-                ) : (
-                  <h3>não há registros para exibir</h3>
-                )}
-              </table>
+                      </React.Fragment>
+                    </tbody>
+                  </table>
+                ))
+              ) : (
+                <div>
+                  <h3>Não há registros para exibir.</h3>
+                </div>
+              )}
             </div>
           </div>
         </div>
+
+        {/* modal de criar */}
         <Modal
           size="lg"
           aria-labelledby="contained-modal-title-vcenter"
@@ -871,11 +864,14 @@ function Servico() {
                       name="oficial"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option disabled selected>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
-                        <option value={item.id} key={item.id}>
+                        <option 
+                        value={item.id} 
+                        key={item.id}
+                        > 
                           {item.gradId.name} - {item.name}
                         </option>
                       ))}
@@ -894,7 +890,7 @@ function Servico() {
                       name="sgt de dia"
                       required
                     >
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -914,7 +910,7 @@ function Servico() {
                   >
                     <Form.Label>Cabo da gd:</Form.Label>
                     <Form.Select type="number" id="cb" name="cb" required>
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -937,7 +933,7 @@ function Servico() {
                       name="permrancho"
                       required
                     >
-                      <option value="" disabled selected>
+                     <option disabled selected>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -961,7 +957,7 @@ function Servico() {
                       name="moto"
                       required
                     >
-                      <option value="" disabled selected>
+                  <option disabled selected>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -985,7 +981,7 @@ function Servico() {
                       name="baia"
                       required
                     >
-                      <option value="" disabled selected>
+                 <option disabled selected>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1012,7 +1008,7 @@ function Servico() {
                       name="frente1"
                       required
                     >
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         Primeiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1029,7 +1025,7 @@ function Servico() {
                       name="frente2"
                       required
                     >
-                      <option value="" disabled selected>
+                     <option disabled selected>
                         Segundo quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1046,7 +1042,7 @@ function Servico() {
                       name="frente3"
                       required
                     >
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         Terceiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1070,7 +1066,7 @@ function Servico() {
                       name="tras1"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option disabled selected>
                         Primeiro quarto
                       </option>
 
@@ -1088,7 +1084,7 @@ function Servico() {
                       name="tras2"
                       required
                     >
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         Segundo quarto
                       </option>
 
@@ -1106,7 +1102,7 @@ function Servico() {
                       name="tras3"
                       required
                     >
-                      <option value="" disabled selected>
+                     <option disabled selected>
                         Terceiro quarto
                       </option>
 
@@ -1131,7 +1127,7 @@ function Servico() {
                       name="alojamento1"
                       required
                     >
-                      <option value="" disabled selected>
+                     <option disabled selected>
                         Primeiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1148,7 +1144,7 @@ function Servico() {
                       name="alojamento2"
                       required
                     >
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         Segundo quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1165,7 +1161,7 @@ function Servico() {
                       name="alojamento3"
                       required
                     >
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         terceiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1192,7 +1188,7 @@ function Servico() {
                       name="garagem1"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option disabled selected>
                         Primeiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1209,7 +1205,7 @@ function Servico() {
                       name="garagem2"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option disabled selected>
                         Segundo quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1226,7 +1222,7 @@ function Servico() {
                       name="garagem3"
                       required
                     >
-                      <option value="" disabled selected>
+                     <option disabled selected>
                         Terceiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1255,7 +1251,7 @@ function Servico() {
                       name="auxrancho1"
                       required
                     >
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         Primeiro auxiliar
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1272,7 +1268,7 @@ function Servico() {
                       name="auxrancho2"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option disabled selected>
                         Segundo auxiliar
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1289,7 +1285,7 @@ function Servico() {
                       name="auxrancho3"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option disabled selected>
                         Terceiro auxiliar
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1316,7 +1312,7 @@ function Servico() {
                       name="pavsup1"
                       required
                     >
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         Primeiro
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1333,7 +1329,7 @@ function Servico() {
                       name="pavsup2"
                       required
                     >
-                      <option value="" disabled selected>
+                    <option disabled selected>
                         Segundo
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1358,7 +1354,7 @@ function Servico() {
                       name="armeiro"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option disabled selected>
                         Armaiero
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1445,6 +1441,7 @@ function Servico() {
           </Form>
         </Modal>
 
+        {/* modal de editar  */}      
         <Modal
           size="lg"
           aria-labelledby="contained-modal-title-vcenter"
@@ -1530,7 +1527,7 @@ function Servico() {
                       name="oficial"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1554,7 +1551,7 @@ function Servico() {
                       name="sgt de dia"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1580,7 +1577,7 @@ function Servico() {
                       name="cb"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1604,7 +1601,7 @@ function Servico() {
                       name="permrancho"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1629,7 +1626,7 @@ function Servico() {
                       name="moto"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1654,7 +1651,7 @@ function Servico() {
                       name="baia"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Selecione...
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1682,7 +1679,7 @@ function Servico() {
                       name="frente1"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Primeiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1700,7 +1697,7 @@ function Servico() {
                       name="frente2"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Segundo quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1718,7 +1715,7 @@ function Servico() {
                       name="frente3"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Terceiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1743,7 +1740,7 @@ function Servico() {
                       name="tras1"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Primeiro quarto
                       </option>
 
@@ -1762,7 +1759,7 @@ function Servico() {
                       name="tras2"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Segundo quarto
                       </option>
 
@@ -1781,7 +1778,7 @@ function Servico() {
                       name="tras3"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Terceiro quarto
                       </option>
 
@@ -1807,7 +1804,7 @@ function Servico() {
                       name="alojamento1"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Primeiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1825,7 +1822,7 @@ function Servico() {
                       name="alojamento2"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Segundo quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1843,7 +1840,7 @@ function Servico() {
                       name="alojamento3"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         terceiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1871,7 +1868,7 @@ function Servico() {
                       name="garagem1"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Primeiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1889,7 +1886,7 @@ function Servico() {
                       name="garagem2"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Segundo quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1907,7 +1904,7 @@ function Servico() {
                       name="garagem3"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Terceiro quarto
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1937,7 +1934,7 @@ function Servico() {
                       name="auxrancho1"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Primeiro auxiliar
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1955,7 +1952,7 @@ function Servico() {
                       name="auxrancho2"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Segundo auxiliar
                       </option>
                       {dadosMilitar.map((item) => (
@@ -1973,7 +1970,7 @@ function Servico() {
                       name="auxrancho3"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Terceiro auxiliar
                       </option>
                       {dadosMilitar.map((item) => (
@@ -2001,7 +1998,7 @@ function Servico() {
                       name="pavsup1"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Primeiro
                       </option>
                       {dadosMilitar.map((item) => (
@@ -2019,7 +2016,7 @@ function Servico() {
                       name="pavsup2"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Segundo
                       </option>
                       {dadosMilitar.map((item) => (
@@ -2045,7 +2042,7 @@ function Servico() {
                       name="armeiro"
                       required
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Armaiero
                       </option>
                       {dadosMilitar.map((item) => (

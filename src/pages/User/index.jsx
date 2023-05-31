@@ -15,6 +15,7 @@ function User() {
   const [name, setName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const token = localStorage.getItem("token");
 
@@ -103,28 +104,28 @@ function User() {
     }
   };
 
-  function handleSubmit(event) {
-    event.preventDefault();
+  const  handleSubmit = async (event) => {
     const novoRegistro = {
+
       name: event.target.name.value,
       cat: event.target.cat.value,
       password: event.target.password.value,
       passwordConfirmation: event.target.confirme.value,
+
     };
-    console.log(novoRegistro);
+
     try {
-      axios.post("http://localhost:5000/users", novoRegistro, {
+    await axios.post("http://localhost:5000/users", novoRegistro, {
         headers: {
          Authorization: `Bearer ${token}`,
         },
       });
-      window.alert("Cadastro efetuado com sucesso!");
       setRegistros([...registros, novoRegistro]);
       event.target.reset();
-      window.location.reload(true);
     } catch (error) {
       console.error("Erro ao criar registro:", error);
     }
+    window.alert("Cadastro efetuado com sucesso!");
   }
 
   function handleDelete(id) {
@@ -152,9 +153,33 @@ function User() {
     setIsModalOpen2(true);
   };
 
-  const handleEdit = async () => {
-    
+  const confirmaEdicao = async (event) => {
+    // // Buscar os dados passando id
+    const editRegistro = {
+      name: event.target.name.value,
+      cat: event.target.cat.value,
+      oldPassword: event.target.oldpassword.value,
+      password: event.target.password.value,
+    };
+    try {
 
+      console.log(editRegistro)
+      // Faz a requisição PUT enviando os dados a serem atualizados no corpo da requisição
+      await axios.put(
+        `http://localhost:5000/users/${registroAtual.id}`,
+        editRegistro,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setRegistroAtual({ ...registroAtual, editRegistro });
+      window.alert("atualização efetuado com sucesso!");
+    } catch (error) {
+      window.alert(error);
+      console.error("Erro ao editar registro:", error);
+    }
   };
 
   function handleModalClose() {
@@ -308,7 +333,7 @@ function User() {
                               required
                             
                             >
-                               <option value="" disabled>
+                               <option value="" disabled selected>
                                 Selecione...
                               </option>
                               <option value={false}>
@@ -375,7 +400,7 @@ function User() {
                       Atualizar usuário
                     </Modal.Title>
                   </Modal.Header>
-                  <Form onSubmit={handleSubmit}>
+                  <Form onSubmit={confirmaEdicao}>
                     <Modal.Body className="show-grid">
                       <Row>
                         <Col>
@@ -446,7 +471,7 @@ function User() {
                     </Modal.Body>
                     <Modal.Footer>
                       <Button variant="success" type="submit">
-                        Cadastrar
+                        Atualizar
                       </Button>
                       <Button variant="danger" onClick={handleModalClose}>
                         Fechar
