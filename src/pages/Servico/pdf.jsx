@@ -42,11 +42,13 @@ export async function visualizarImpressao(id) {
       },
       { text: "", margin: [0, 5] },
       {
+        // eslint-disable-next-line
         text: "Quartel em RECIFE-PE," + " " + dataFormatada,
         alignment: "center",
       },
       { text: "", margin: [0, 5] },
       {
+        // eslint-disable-next-line
         text: "ADITAMENTO AO BOLETIM INTERNO Nr " + " " + registro.bi,
         alignment: "center",
         bold: true,
@@ -67,6 +69,7 @@ export async function visualizarImpressao(id) {
       { text: "", margin: [0, 2] },
       { text: "A. INTERNO", decoration: "underline" },
       { text: "", margin: [0, 5] },
+      // eslint-disable-next-line
       { text: "Para o dia" + " " + dataFormatadaSv },
 
       {

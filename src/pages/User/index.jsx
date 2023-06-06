@@ -15,7 +15,6 @@ function User() {
   const [name, setName] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [errorMessage, setErrorMessage] = useState("");
 
   const token = localStorage.getItem("token");
 

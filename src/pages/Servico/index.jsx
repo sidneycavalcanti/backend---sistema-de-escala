@@ -16,7 +16,7 @@ function Servico() {
   const [registroAtual, setRegistroAtual] = useState({});
   const [isModalOpen1, setIsModalOpen1] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
-  const [buttonText, setButtonText] = useState("Abrir");
+  const [buttonText] = useState("Abrir");
   const [open, setOpen] = useState({});
   const [data, setData] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -132,7 +132,7 @@ function Servico() {
     event.preventDefault();
 
     try {
-      const { parseISO, formatISO } = require("date-fns");
+     
 
       const novaData = event.target.date.value;
       const today = new Date();
@@ -1466,7 +1466,7 @@ function Servico() {
                     type="radio"
                     id="escala"
                     value={true}
-                    checked={registroAtual.escala == true}
+                    checked={registroAtual.escala === true}
                   />
                   <Form.Check
                     inline
@@ -1475,7 +1475,7 @@ function Servico() {
                     type="radio"
                     id="escala"
                     value={false}
-                    checked={registroAtual.escala == false}
+                    checked={registroAtual.escala === false}
                   />
                 </Col>
                 <Row>
