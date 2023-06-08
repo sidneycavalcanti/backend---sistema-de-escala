@@ -1,7 +1,6 @@
 {
   "name": "sisescala",
   "version": "0.1.0",
-  "homepage": "http://10.46.212.7/sisescala",
   "private": true,
   "dependencies": {
     "-": "^0.0.1",

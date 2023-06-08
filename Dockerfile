@@ -1,17 +1,12 @@
-# Define a imagem base
-FROM node:latest
 
-# Define o diretório de trabalho dentro do contêiner
-WORKDIR /app
+FROM nginx:latest
 
-# Copia o arquivo package.json para o diretório de trabalho
-COPY package.json .
+RUN rm /etc/nginx/nginx.conf
 
-# Instala as dependências do projeto
-RUN npm install
+COPY nginx/nginx.conf /etc/nginx
 
-# Copia todos os arquivos do diretório atual para o diretório de trabalho
-COPY . .
+COPY build /usr/share/nginx/html
 
-# Define o comando de inicialização do frontend
-CMD ["npm", "start"]
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

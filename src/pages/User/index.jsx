@@ -143,7 +143,7 @@ function User() {
   }
 
   const buscarRegistro = async (id) => {
-    const response = await axios.get(`http://localhost:5000/users/${id}`,{
+    const response = await axios.get(`http://10.46.212.7:5000/users/${id}`,{
       headers: {
         Authorization: `Baerer ${token}`,
       }
@@ -167,7 +167,7 @@ function User() {
 
       // Faz a requisição PUT enviando os dados a serem atualizados no corpo da requisição
       const atualizar = await axios.put(
-        `http://localhost:5000/users/${registroAtual.id}`,
+        `http://10.46.212.7:5000/users/${registroAtual.id}`,
         editRegistro,
         {
           headers: {
