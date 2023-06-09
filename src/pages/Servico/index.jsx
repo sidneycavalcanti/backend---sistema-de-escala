@@ -2124,6 +2124,7 @@ function Servico() {
           </Form>
         </Modal>
       </div>
+      <br></br>
       <Pagination size="lg" className="justify-content-center">
         <Pagination.First
           onClick={() => handlePageChange(1)}
